@@ -26,7 +26,7 @@ No cloud. No telemetry. No Dock icon. Just a tray icon and a hotkey.
 | Hardware | Apple Silicon (M-series) — `mlx-whisper` runs on the Neural Engine / GPU |
 | macOS | Sequoia (26.x) or later |
 | Python | `python3` on PATH with `mlx_whisper` importable |
-| ffmpeg | `/opt/homebrew/bin/ffmpeg` (Homebrew install) |
+| ffmpeg | **Required at `/opt/homebrew/bin/ffmpeg`** (the Homebrew default on Apple Silicon — this path is currently hardcoded) |
 | Models | At least one model pre-downloaded to `~/.cache/huggingface/hub/` |
 | Permissions | Microphone (always). Accessibility (only if you want auto-type). |
 
@@ -122,10 +122,14 @@ No network calls at any point.
 ## Development
 
 ```bash
+npm install
 npm run build     # esbuild → dist/main.js + dist/test/
 npm run dev       # build + start
 npm test          # node --test dist/test/**/*.test.js
+npx tsc --noEmit  # typecheck only
 ```
+
+See **[CONTRIBUTING.md](./CONTRIBUTING.md)** for the full contributor guide, manual test plan, and project conventions.
 
 Source layout:
 
@@ -153,6 +157,10 @@ Source layout:
 - [ ] Settings UI (currently config file only beyond model + output mode)
 
 ---
+
+## Contributing
+
+PRs welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md). Release history lives in [CHANGELOG.md](./CHANGELOG.md).
 
 ## License
 
