@@ -1,0 +1,42 @@
+{
+  "name": "whisper-app",
+  "version": "0.1.0",
+  "description": "Local macOS menu-bar dictation app using mlx-whisper",
+  "main": "dist/main.js",
+  "license": "MIT",
+  "author": "Griffin Long",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/griffinwork40/whisper-app.git"
+  },
+  "homepage": "https://github.com/griffinwork40/whisper-app#readme",
+  "bugs": {
+    "url": "https://github.com/griffinwork40/whisper-app/issues"
+  },
+  "keywords": [
+    "whisper",
+    "mlx",
+    "dictation",
+    "speech-to-text",
+    "macos",
+    "menu-bar",
+    "electron",
+    "apple-silicon"
+  ],
+  "scripts": {
+    "build": "node esbuild.config.mjs",
+    "start": "electron dist/main.js",
+    "dev": "npm run build && npm start",
+    "test": "node --test 'dist/test/**/*.test.js'"
+  },
+  "dependencies": {
+    "electron": "^36.2.1",
+    "electron-store": "^8.2.0",
+    "uiohook-napi": "^1.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.21.0",
+    "typescript": "^5.4.0"
+  }
+}
