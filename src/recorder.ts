@@ -13,6 +13,12 @@ import * as logger from './logger';
 
 const FFMPEG_PATH = '/opt/homebrew/bin/ffmpeg';
 const MAX_RECORDING_MS = 60_000; // 60-second hard limit
+// AVFoundation has ~300–500 ms cold-start latency before any audio frames
+// arrive. If the user (or a phantom hotkey release) stops recording before
+// then, the WAV contains essentially zero real samples and Whisper hallucinates
+// its top-of-distribution phrase ("Thank you."). Enforce a floor so every
+// recording captures real audio.
+const MIN_RECORDING_MS = 600;
 
 /**
  * Build the ffmpeg argument array for recording from a specific AVFoundation device.
@@ -43,6 +49,7 @@ export class AudioRecorder {
   private maxRecordingTimer: ReturnType<typeof setTimeout> | null = null;
   private stopResolver: ((path: string) => void) | null = null;
   private stopRejecter: ((err: Error) => void) | null = null;
+  private recordingStartMs: number = 0;
 
   /**
    * Start recording from the specified AVFoundation device index.
@@ -55,6 +62,7 @@ export class AudioRecorder {
     }
 
     this.wavPath = getTempPath();
+    this.recordingStartMs = Date.now();
     const args = buildFfmpegArgs(deviceIndex, this.wavPath);
 
     logger.debug(`Spawning ffmpeg: ${FFMPEG_PATH} ${args.join(' ')}`);
@@ -122,8 +130,24 @@ export class AudioRecorder {
       this.stopResolver = resolve;
       this.stopRejecter = reject;
 
-      // SIGTERM causes ffmpeg to finalize the WAV header and exit cleanly
-      this.process.kill('SIGTERM');
+      const elapsed = Date.now() - this.recordingStartMs;
+      const remaining = MIN_RECORDING_MS - elapsed;
+
+      const sendStop = () => {
+        // SIGTERM causes ffmpeg to finalize the WAV header and exit cleanly
+        if (this.process) {
+          this.process.kill('SIGTERM');
+        }
+      };
+
+      if (remaining > 0) {
+        logger.debug(
+          `Stop requested after ${elapsed}ms — deferring ${remaining}ms to clear AVFoundation cold-start window`,
+        );
+        setTimeout(sendStop, remaining);
+      } else {
+        sendStop();
+      }
     });
   }
 

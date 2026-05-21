@@ -66,6 +66,7 @@ Settings live at `~/Library/Application Support/whisper-app/config.json`:
 ```jsonc
 {
   "hotkey": "Option+Cmd",                   // Electron accelerator string
+  "hotkeyMode": "hold",                     // "hold" (push-to-talk) | "tap" (toggle)
   "model": "mlx-community/whisper-turbo",   // HuggingFace repo id
   "language": "en",                         // ISO 639-1 or "auto"
   "outputMode": "clipboard",                // "clipboard" | "autotype" | "both"
@@ -76,10 +77,12 @@ Settings live at `~/Library/Application Support/whisper-app/config.json`:
 
 ### Hotkey modes
 
-The hotkey string is parsed two ways:
+The tray menu's **Hotkey Mode** group lets you pick between:
 
-- **Modifier-only** (e.g. `Option+Cmd`, `Alt`) → **hold-to-talk** via `uiohook-napi`. Press both modifiers to start; release any to stop. This is the default.
-- **Regular accelerator** (e.g. `Control+Alt+Shift+D`) → **toggle** via Electron's `globalShortcut`. Press once to start, press again to stop.
+- **Hold to talk** (default) — press the chord to start, release to stop. Only works for modifier-only hotkeys (e.g. `Option+Cmd`, `Alt`), because Electron cannot observe key-release on standard accelerators.
+- **Tap to toggle** — press once to start, press again to stop. Works for any hotkey, modifier-only or standard (e.g. `Control+Alt+Shift+D`).
+
+If you choose **Hold to talk** with a non-modifier hotkey (e.g. `Alt+Space`), the app falls back to **Tap to toggle** and logs a warning. The selection persists to `config.json` as `hotkeyMode: "hold" | "tap"`.
 
 > Recording is **hotkey-only by design**. Clicking the tray icon opens the context menu — it does not start a recording.
 

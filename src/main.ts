@@ -9,7 +9,7 @@
 
 import { app, Notification } from 'electron';
 import * as path from 'node:path';
-import { type AppState, type ModelId, type OutputMode, type SetupError } from './types';
+import { type AppState, type HotkeyMode, type ModelId, type OutputMode, type SetupError } from './types';
 import { Config } from './config';
 import { TrayManager } from './tray';
 import { AudioRecorder } from './recorder';
@@ -92,8 +92,14 @@ app.whenReady().then(async () => {
       );
       logger.info(`Transcription complete: "${text.substring(0, 80)}${text.length > 80 ? '…' : ''}"`);
 
-      await deliver(text, config.getOutputMode());
-      logger.info('Text delivered to output');
+      if (text.length === 0) {
+        // Silence-gate or hallucination filter dropped the result. Don't
+        // clobber the clipboard or auto-type an empty string.
+        logger.info('No speech detected — skipping delivery');
+      } else {
+        await deliver(text, config.getOutputMode());
+        logger.info('Text delivered to output');
+      }
 
       appState = 'idle';
       tray.setState('idle');
@@ -141,7 +147,7 @@ app.whenReady().then(async () => {
   };
 
   // ─── Wire up events ───────────────────────────────────────────────────────
-  hotkey.register(config.getHotkey(), { onPress, onRelease });
+  hotkey.register(config.getHotkey(), { onPress, onRelease }, { mode: config.getHotkeyMode() });
   // Recording is hotkey-only by design; the tray icon does not toggle recording.
   // Left-clicking the tray icon opens the context menu.
   tray.on('quit', () => {
@@ -156,6 +162,17 @@ app.whenReady().then(async () => {
   tray.on('outputModeChange', (mode: OutputMode) => {
     logger.info(`Output mode changed to: ${mode}`);
     config.setOutputMode(mode);
+    tray.buildContextMenu(config);
+  });
+  tray.on('hotkeyModeChange', (mode: HotkeyMode) => {
+    logger.info(`Hotkey mode changed to: ${mode}`);
+    config.setHotkeyMode(mode);
+    // Re-register hotkey with the new mode. If the user is mid-recording,
+    // stop cleanly first so we don't strand the state machine.
+    if (appState === 'recording') {
+      void stopRecording();
+    }
+    hotkey.register(config.getHotkey(), { onPress, onRelease }, { mode });
     tray.buildContextMenu(config);
   });
 

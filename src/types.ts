@@ -7,6 +7,10 @@ export type AppState = 'idle' | 'recording' | 'processing' | 'error';
 
 export type OutputMode = 'clipboard' | 'autotype' | 'both';
 
+export type HotkeyMode = 'hold' | 'tap';
+
+export const VALID_HOTKEY_MODES: readonly HotkeyMode[] = ['hold', 'tap'] as const;
+
 export type ModelId =
   | 'mlx-community/whisper-tiny'
   | 'mlx-community/whisper-turbo'

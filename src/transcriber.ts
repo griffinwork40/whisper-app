@@ -10,6 +10,33 @@ import * as logger from './logger';
 
 const TRANSCRIPTION_TIMEOUT_MS = 30_000; // 30 seconds
 
+// Whisper's most common hallucinations on silent/near-silent input. These come
+// from YouTube/podcast outros dominating the training set: when the model has
+// no real signal to decode, the language prior emits one of these. Filter them
+// so they never reach the user's clipboard. Comparison is lowercased and
+// stripped of surrounding punctuation/whitespace.
+const HALLUCINATION_PHRASES = new Set([
+  '',
+  'thank you',
+  'thanks',
+  'thanks for watching',
+  'thank you for watching',
+  'thanks for watching!',
+  'you',
+  'bye',
+  '.',
+  '...',
+]);
+
+function isHallucination(text: string): boolean {
+  const normalized = text
+    .toLowerCase()
+    .replace(/[\s\u200b]+/g, ' ')
+    .replace(/[.!?,]+$/g, '')
+    .trim();
+  return HALLUCINATION_PHRASES.has(normalized);
+}
+
 export class Transcriber {
   constructor(
     private readonly pythonPath: string,
@@ -118,7 +145,14 @@ export class Transcriber {
           }
 
           if (code === 0 && parsed.text !== undefined) {
-            resolve(parsed.text);
+            if (isHallucination(parsed.text)) {
+              logger.info(
+                `Filtered hallucination from silent/near-silent audio: "${parsed.text}"`,
+              );
+              resolve('');
+            } else {
+              resolve(parsed.text);
+            }
           } else {
             reject(
               new TranscriptionError(

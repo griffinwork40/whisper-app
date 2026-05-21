@@ -1,12 +1,24 @@
 /**
- * HotkeyManager — supports two modes:
- *   - Modifier-only accelerators (e.g. "Alt") via uiohook-napi (push-to-talk)
- *   - Standard accelerators (e.g. "Alt+Space") via Electron's globalShortcut (toggle)
+ * HotkeyManager — supports two interaction modes, chosen by the caller:
+ *
+ *   - "hold" (push-to-talk): press the chord to start, release to stop.
+ *           Only available for modifier-only accelerators (e.g. "Option+Cmd"),
+ *           because Electron's globalShortcut cannot observe key-release.
+ *           Implemented via uiohook-napi.
+ *   - "tap" (toggle): press once to start, press again to stop. Works for
+ *           any accelerator (modifier-only or standard).
+ *           Modifier-only "tap" is implemented via uiohook-napi (treats the
+ *           chord-down edge as a toggle and ignores release). Standard
+ *           accelerators use Electron's globalShortcut.
+ *
+ * If the caller requests "hold" with a non-modifier accelerator (e.g.
+ * "Alt+Space"), HotkeyManager falls back to "tap" and logs a warning.
  *
  * Must be called inside app.whenReady().
  */
 
 import { globalShortcut } from 'electron';
+import type { HotkeyMode } from './types';
 import * as logger from './logger';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -14,6 +26,11 @@ import * as logger from './logger';
 export interface HotkeyHandlers {
   onPress: () => void;
   onRelease?: () => void;
+}
+
+export interface RegisterOptions {
+  /** Interaction mode. Defaults to "hold" for back-compat. */
+  mode?: HotkeyMode;
 }
 
 type ModifierName = 'cmd' | 'alt' | 'ctrl' | 'shift';
@@ -90,12 +107,17 @@ export class HotkeyManager {
 
   // ── register ──────────────────────────────────────────────────────────────
 
-  register(accelerator: string, handlers: HotkeyHandlers): boolean {
+  register(
+    accelerator: string,
+    handlers: HotkeyHandlers,
+    options: RegisterOptions = {},
+  ): boolean {
     this.unregister();
 
     const { modifiers, key } = parseAccelerator(accelerator);
+    const requestedMode: HotkeyMode = options.mode ?? 'hold';
 
-    // ── Path A: modifier-only → uiohook push-to-talk ─────────────────────
+    // ── Path A: modifier-only accelerator → uiohook ──────────────────────
     if (key === null && modifiers.size >= 1) {
       let uIOhook: UiohookModule;
       try {
@@ -131,10 +153,15 @@ export class HotkeyManager {
         }
       };
 
+      // In "hold" mode, releasing any chord key fires onRelease.
+      // In "tap" mode, releases only reset the edge-detector — onPress
+      // is called again on the next chord-down edge.
       const keyupListener = (e: UiohookKeyboardEvent): void => {
         if (chordHeld && anyReleased(e)) {
           chordHeld = false;
-          handlers.onRelease?.();
+          if (requestedMode === 'hold') {
+            handlers.onRelease?.();
+          }
         }
       };
 
@@ -145,15 +172,22 @@ export class HotkeyManager {
       this.uiohookKeyupListener = keyupListener;
       this.registeredAccelerator = accelerator;
 
-      logger.info(`Hotkey registered: ${accelerator} (push-to-talk)`);
+      logger.info(
+        `Hotkey registered: ${accelerator} (${requestedMode === 'hold' ? 'hold-to-talk' : 'tap-to-toggle'})`,
+      );
       return true;
     }
 
-    // ── Path B: standard accelerator → globalShortcut toggle ─────────────
+    // ── Path B: standard accelerator → globalShortcut (tap-only) ─────────
+    if (requestedMode === 'hold') {
+      logger.warn(
+        `Hotkey "${accelerator}" includes a non-modifier key; "hold" mode is not supported. Falling back to "tap".`,
+      );
+    }
     const success = globalShortcut.register(accelerator, handlers.onPress);
     if (success) {
       this.registeredAccelerator = accelerator;
-      logger.info(`Hotkey registered: ${accelerator} (toggle)`);
+      logger.info(`Hotkey registered: ${accelerator} (tap-to-toggle)`);
     } else {
       logger.warn(`Failed to register hotkey: ${accelerator} (may already be in use)`);
     }

@@ -10,7 +10,7 @@
 import { Tray, Menu, nativeImage, app } from 'electron';
 import { EventEmitter } from 'node:events';
 import * as path from 'node:path';
-import { type AppState, type ModelId, type OutputMode, VALID_MODELS } from './types';
+import { type AppState, type HotkeyMode, type ModelId, type OutputMode, VALID_MODELS } from './types';
 import type { Config } from './config';
 import * as logger from './logger';
 
@@ -156,6 +156,7 @@ export class TrayManager extends EventEmitter {
 
     const currentModel = config.getModel();
     const currentMode = config.getOutputMode();
+    const currentHotkeyMode = config.getHotkeyMode();
 
     const modelItems = VALID_MODELS.map(modelId => ({
       label: modelId.replace('mlx-community/', ''),
@@ -187,6 +188,21 @@ export class TrayManager extends EventEmitter {
       },
     ];
 
+    const hotkeyModeItems: Electron.MenuItemConstructorOptions[] = [
+      {
+        label: 'Hold to talk',
+        type: 'radio' as const,
+        checked: currentHotkeyMode === 'hold',
+        click: () => this.emit('hotkeyModeChange', 'hold' as HotkeyMode),
+      },
+      {
+        label: 'Tap to toggle',
+        type: 'radio' as const,
+        checked: currentHotkeyMode === 'tap',
+        click: () => this.emit('hotkeyModeChange', 'tap' as HotkeyMode),
+      },
+    ];
+
     const menu = Menu.buildFromTemplate([
       { label: 'Whisper App', enabled: false },
       { type: 'separator' },
@@ -195,6 +211,9 @@ export class TrayManager extends EventEmitter {
       { type: 'separator' },
       { label: 'Output Mode', enabled: false },
       ...outputModeItems,
+      { type: 'separator' },
+      { label: 'Hotkey Mode', enabled: false },
+      ...hotkeyModeItems,
       { type: 'separator' },
       {
         label: 'Quit',
