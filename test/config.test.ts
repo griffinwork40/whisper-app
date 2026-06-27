@@ -9,6 +9,27 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 
+// Mock electron before electron-store (pulled in transitively by src/config)
+// can require it. In CI the electron binary is not installed, so a real
+// require('electron') throws "Electron failed to install correctly" and every
+// Config test fails with "Config is not a constructor". These unit tests never
+// touch the GUI, so a minimal stub suffices. Mirrors test/hotkey.test.ts.
+const Module = require('module');
+const _origElectronLoad = Module._load.bind(Module);
+Module._load = (id: string, ...rest: unknown[]) => {
+  if (id === 'electron') {
+    return {
+      app: {
+        getPath: () => os.tmpdir(),
+        getName: () => 'whisper-app',
+        getVersion: () => '0.0.0-test',
+        getAppPath: () => process.cwd(),
+      },
+    };
+  }
+  return _origElectronLoad(id, ...rest);
+};
+
 // We'll use a temp dir so each test gets a clean config store
 let tempDir: string;
 

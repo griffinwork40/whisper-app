@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import { readdirSync, statSync, existsSync } from 'node:fs';
+import { readdirSync, statSync, existsSync, cpSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -54,6 +54,17 @@ if (testFiles.length > 0) {
     outbase: 'test',
   });
   console.log(`Built ${testFiles.length} test file(s) to dist/test/`);
+}
+
+// Copy sound assets to dist/sounds/ if they exist
+const soundsSrc = path.join(__dirname, 'assets', 'sounds');
+const soundsDst = path.join(__dirname, 'dist', 'sounds');
+if (existsSync(soundsSrc)) {
+  mkdirSync(soundsDst, { recursive: true });
+  cpSync(soundsSrc, soundsDst, { recursive: true });
+  console.log('Copied assets/sounds → dist/sounds/');
+} else {
+  console.log('Skipping sound copy — assets/sounds/ not yet present.');
 }
 
 console.log('Build complete.');
