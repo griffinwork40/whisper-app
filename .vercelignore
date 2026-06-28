@@ -1,0 +1,11 @@
+# Only landing/ is served (see vercel.json outputDirectory).
+# Exclude the Electron app source + tooling from the upload.
+node_modules
+dist
+src
+test
+scripts
+esbuild.config.mjs
+tsconfig.json
+*.md
+.github
