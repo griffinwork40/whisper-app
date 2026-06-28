@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whisper App — Local Dictation for macOS</title>
+
+  <!-- SEO -->
+  <meta name="description" content="Hold a hotkey. Speak. Release. Fully local, Neural Engine–powered dictation for Apple Silicon. No cloud, no telemetry, no Dock icon.">
+  <meta name="author" content="Griffin Long">
+  <meta name="keywords" content="whisper, dictation, macOS, Apple Silicon, mlx-whisper, local, offline, menu bar, hotkey">
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website">
+  <meta property="og:title"       content="Whisper App — Local Dictation for macOS">
+  <meta property="og:description" content="Hold a hotkey. Speak. Release. Fully local, Neural Engine–powered dictation for Apple Silicon. No cloud, no telemetry, no Dock icon.">
+  <meta property="og:image"       content="https://griffinwork40.github.io/whisper-app/assets/icon-idle.png">
+  <meta property="og:url"         content="https://griffinwork40.github.io/whisper-app/">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary">
+  <meta name="twitter:title"       content="Whisper App — Local Dictation for macOS">
+  <meta name="twitter:description" content="Hold a hotkey. Speak. Release. Fully local, Neural Engine–powered dictation for Apple Silicon.">
+  <meta name="twitter:image"       content="https://griffinwork40.github.io/whisper-app/assets/icon-idle.png">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- No-JS fallback: scroll-fade cards start at opacity:0 and are revealed by
+       the IntersectionObserver. Without JS that observer never runs, so force
+       the cards visible to keep the page's core content readable. -->
+  <noscript>
+    <style>
+      .feature-card { opacity: 1 !important; transform: none !important; }
+    </style>
+  </noscript>
+</head>
+<body>
+
+  <!-- ============================================================
+       Navbar
+       ============================================================ -->
+  <nav class="navbar">
+    <span class="nav-logo">Whisper App</span>
+    <a class="nav-github" href="https://github.com/griffinwork40/whisper-app" target="_blank" rel="noopener noreferrer">
+      <img
+        src="https://img.shields.io/github/stars/griffinwork40/whisper-app?style=social"
+        alt="GitHub Stars"
+        loading="lazy"
+        width="90"
+        height="20"
+      >
+    </a>
+  </nav>
+
+  <!-- ============================================================
+       Hero
+       ============================================================ -->
+  <section class="hero">
+    <h1>Speak. It&nbsp;types.</h1>
+
+    <p class="hero-sub">
+      Fully local dictation for Apple Silicon. Hold <kbd>⌥⌘</kbd>, speak, release.
+      No cloud, no telemetry, no Dock icon — just your voice and a tray icon.
+    </p>
+
+    <!-- Animated waveform (decorative, hidden from AT) -->
+    <div class="waveform" aria-hidden="true">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+
+    <div class="cta-group">
+      <a class="btn-primary" href="https://github.com/griffinwork40/whisper-app" target="_blank" rel="noopener noreferrer">
+        View on GitHub
+      </a>
+      <a class="btn-secondary" href="#install">Install from source</a>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       Features
+       ============================================================ -->
+  <section class="features" id="features">
+    <p class="section-label">Features</p>
+    <h2 class="section-title">Everything you need. Nothing you don't.</h2>
+    <p class="section-sub">
+      A menu-bar dictation tool built for speed and privacy — runs entirely on-device using Apple's Neural Engine.
+    </p>
+
+    <div class="features-grid">
+      <div class="feature-card" data-animate>
+        <span class="feature-icon" aria-hidden="true">🔒</span>
+        <h3>On-Device Privacy</h3>
+        <p>
+          All transcription happens locally via <code>mlx-whisper</code>.
+          Your audio never leaves your Mac — no API calls, no telemetry, no subscriptions.
+        </p>
+      </div>
+
+      <div class="feature-card" data-animate>
+        <span class="feature-icon" aria-hidden="true">🎙️</span>
+        <h3>Hold-to-Talk Hotkey</h3>
+        <p>
+          Default <kbd>⌥⌘</kbd> in hold-to-talk mode. Switch to tap-to-toggle for any
+          standard accelerator. The recording starts instantly — no UI to click.
+        </p>
+      </div>
+
+      <div class="feature-card" data-animate>
+        <span class="feature-icon" aria-hidden="true">🧠</span>
+        <h3>Model Selector</h3>
+        <p>
+          Choose between <code>whisper-turbo</code>, <code>whisper-large-v3-turbo</code>,
+          and more from the tray menu. Settings persist across restarts.
+        </p>
+      </div>
+
+      <div class="feature-card" data-animate>
+        <span class="feature-icon" aria-hidden="true">🚫</span>
+        <h3>No Distractions</h3>
+        <p>
+          <code>LSUIElement = true</code> — no Dock icon, no window, no splash screen.
+          Just a four-state tray icon and a hotkey.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       How It Works
+       ============================================================ -->
+  <section class="how-it-works" id="how-it-works">
+    <p class="section-label">How It Works</p>
+    <h2 class="section-title">Four states. One hotkey.</h2>
+    <p class="section-sub section-sub--centered">
+      The tray icon tracks every stage of transcription so you always know what's happening.
+    </p>
+
+    <div class="state-flow" role="img" aria-label="App state flow: Idle → Recording → Processing → Done or Error">
+      <div class="state">
+        <img src="./assets/icon-idle.png" alt="Idle state tray icon" width="48" height="48">
+        <span>Idle</span>
+      </div>
+
+      <div class="arrow" aria-hidden="true">→</div>
+
+      <div class="state">
+        <img src="./assets/icon-recording.png" alt="Recording state tray icon" width="48" height="48">
+        <span>Recording…</span>
+      </div>
+
+      <div class="arrow" aria-hidden="true">→</div>
+
+      <div class="state">
+        <img src="./assets/icon-processing.png" alt="Processing state tray icon" width="48" height="48">
+        <span>Processing…</span>
+      </div>
+
+      <div class="arrow" aria-hidden="true">→</div>
+
+      <div class="state">
+        <img src="./assets/icon-error.png" alt="Done or error state tray icon" width="48" height="48">
+        <span>Done / Error</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       Install
+       ============================================================ -->
+  <section class="install" id="install">
+    <p class="section-label">Install</p>
+    <h2 class="section-title">Up and running in minutes.</h2>
+    <p class="section-sub">
+      Clone, build, and start. The tray icon appears immediately — then hold <kbd>⌥⌘</kbd> and speak.
+    </p>
+
+    <div class="code-wrap">
+      <div class="code-bar">
+        <div class="code-dots" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+        <button type="button" class="copy-btn" onclick="copyInstall()" aria-label="Copy install commands to clipboard">
+          Copy
+        </button>
+      </div>
+      <pre><code id="install-cmd">git clone https://github.com/griffinwork40/whisper-app.git
+cd whisper-app
+npm install
+npm run build
+npm start</code></pre>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       Requirements
+       ============================================================ -->
+  <section class="requirements" id="requirements">
+    <p class="section-label">Requirements</p>
+    <h2 class="section-title">What you need first.</h2>
+
+    <ul class="req-list">
+      <li>
+        <span class="req-emoji" aria-hidden="true">🍎</span>
+        <span><strong>Apple Silicon (M-series)</strong> — <code>mlx-whisper</code> runs on the Neural Engine and GPU. Intel Macs are not supported.</span>
+      </li>
+      <li>
+        <span class="req-emoji" aria-hidden="true">🖥️</span>
+        <span><strong>macOS Sequoia 26.x or later</strong> — tested on the current release.</span>
+      </li>
+      <li>
+        <span class="req-emoji" aria-hidden="true">🐍</span>
+        <span><strong>Python 3 with mlx-whisper</strong> — <code>pip3 install mlx-whisper</code>. Must be importable from the default <code>python3</code> on PATH.</span>
+      </li>
+      <li>
+        <span class="req-emoji" aria-hidden="true">🎬</span>
+        <span><strong>ffmpeg at <code>/opt/homebrew/bin/ffmpeg</code></strong> — the default Homebrew path on Apple Silicon. <code>brew install ffmpeg</code>.</span>
+      </li>
+      <li>
+        <span class="req-emoji" aria-hidden="true">🤗</span>
+        <span><strong>One pre-cached HuggingFace model</strong> — e.g. <code>mlx-community/whisper-turbo</code> (~810 MB). See the README for the one-liner.</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============================================================
+       Roadmap
+       ============================================================ -->
+  <section class="roadmap" id="roadmap">
+    <p class="section-label">Roadmap</p>
+    <h2 class="section-title">What's next.</h2>
+    <p class="section-sub">
+      PRs welcome. See <a href="https://github.com/griffinwork40/whisper-app/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">CONTRIBUTING.md</a> to get started.
+    </p>
+
+    <ul class="roadmap-list">
+      <li>
+        <span class="roadmap-checkbox" aria-hidden="true"></span>
+        Code signing + notarization, ship a <code>.dmg</code>
+      </li>
+      <li>
+        <span class="roadmap-checkbox" aria-hidden="true"></span>
+        Streaming / partial transcription
+      </li>
+      <li>
+        <span class="roadmap-checkbox" aria-hidden="true"></span>
+        Per-app output-mode overrides
+      </li>
+      <li>
+        <span class="roadmap-checkbox" aria-hidden="true"></span>
+        Custom dictionary / replacement rules
+      </li>
+      <li>
+        <span class="roadmap-checkbox" aria-hidden="true"></span>
+        Settings UI (currently config file only beyond model + output mode)
+      </li>
+    </ul>
+  </section>
+
+  <!-- ============================================================
+       Footer
+       ============================================================ -->
+  <footer class="footer">
+    <a href="https://github.com/griffinwork40/whisper-app" target="_blank" rel="noopener noreferrer">
+      GitHub
+    </a>
+    <img
+      src="https://img.shields.io/badge/license-MIT-blue.svg"
+      alt="MIT License"
+      loading="lazy"
+      width="78"
+      height="20"
+    >
+    <span>© 2026 Griffin Long</span>
+    <span class="footer-tagline">No cloud. No telemetry. Just a tray icon and a hotkey.</span>
+  </footer>
+
+  <!-- ============================================================
+       Inline JavaScript (~30 lines)
+       ============================================================ -->
+  <script>
+    /* ── Copy install command ─────────────────────────────────── */
+    async function copyInstall() {
+      const btn  = document.querySelector('.copy-btn');
+      const text = document.getElementById('install-cmd').textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      } catch {
+        /* Fallback: select text so user can copy manually */
+        const range = document.createRange();
+        range.selectNodeContents(document.getElementById('install-cmd'));
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }
+
+    /* ── Scroll-fade IntersectionObserver ─────────────────────── */
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12 }
+      );
+
+      document.querySelectorAll('[data-animate]').forEach((el) => {
+        observer.observe(el);
+      });
+    } else {
+      /* No IntersectionObserver — just make everything visible */
+      document.querySelectorAll('[data-animate]').forEach((el) => {
+        el.classList.add('visible');
+      });
+    }
+  </script>
+
+</body>
+</html>
