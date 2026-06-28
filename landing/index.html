@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Set a JS flag before first paint so the scroll-reveal animation is
+       opt-in: feature cards are visible by default and only start hidden
+       (to animate in) when JS is present. Core content is never gated on JS. -->
+  <script>document.documentElement.classList.add('js');</script>
+
   <title>Whisper App — Local Dictation for macOS</title>
 
   <!-- SEO -->
@@ -25,9 +31,10 @@
 
   <link rel="stylesheet" href="styles.css">
 
-  <!-- No-JS fallback: scroll-fade cards start at opacity:0 and are revealed by
-       the IntersectionObserver. Without JS that observer never runs, so force
-       the cards visible to keep the page's core content readable. -->
+  <!-- Redundant no-JS safety net. Feature cards are now visible by default
+       (the hidden start-state is gated behind `html.js`), so without JS they
+       already render. Kept as belt-and-suspenders in case the head flag-script
+       is ever stripped by an intermediary. -->
   <noscript>
     <style>
       .feature-card { opacity: 1 !important; transform: none !important; }
@@ -51,6 +58,8 @@
       >
     </a>
   </nav>
+
+  <main>
 
   <!-- ============================================================
        Hero
@@ -99,6 +108,7 @@
         <p>
           All transcription happens locally via <code>mlx-whisper</code>.
           Your audio never leaves your Mac — no API calls, no telemetry, no subscriptions.
+          <a href="https://github.com/griffinwork40/whisper-app/tree/main/src" target="_blank" rel="noopener noreferrer">Audit the source&nbsp;→</a>
         </p>
       </div>
 
@@ -262,6 +272,8 @@ npm start</code></pre>
     </ul>
   </section>
 
+  </main>
+
   <!-- ============================================================
        Footer
        ============================================================ -->
@@ -269,14 +281,16 @@ npm start</code></pre>
     <a href="https://github.com/griffinwork40/whisper-app" target="_blank" rel="noopener noreferrer">
       GitHub
     </a>
-    <img
-      src="https://img.shields.io/badge/license-MIT-blue.svg"
-      alt="MIT License"
-      loading="lazy"
-      width="78"
-      height="20"
-    >
-    <span>© 2026 Griffin Long</span>
+    <a href="https://github.com/griffinwork40/whisper-app/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" aria-label="View the MIT License on GitHub">
+      <img
+        src="https://img.shields.io/badge/license-MIT-blue.svg"
+        alt="MIT License"
+        loading="lazy"
+        width="78"
+        height="20"
+      >
+    </a>
+    <span>© 2026 <a href="https://github.com/griffinwork40" target="_blank" rel="noopener noreferrer">Griffin Long</a></span>
     <a href="https://agentafk.com" target="_blank" rel="noopener noreferrer">Built with Agent AFK</a>
     <span class="footer-tagline">No cloud. No telemetry. Just a tray icon and a hotkey.</span>
   </footer>
