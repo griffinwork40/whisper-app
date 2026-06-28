@@ -645,3 +645,19 @@ code {
     justify-content: center;
   }
 }
+
+/* How-It-Works flow: on narrow screens the four states + arrows wrap
+   awkwardly (a dangling → at the end of row 1, the 4th state orphaned
+   below). Stack the flow vertically with downward arrows so the
+   sequence reads cleanly top-to-bottom. */
+@media (max-width: 600px) {
+  .state-flow {
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .arrow {
+    transform: rotate(90deg);
+    font-size: 1.1rem;
+  }
+}
