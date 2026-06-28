@@ -12,6 +12,13 @@
   --color-border:        #2a2a32;
   --color-accent:        #7C6FF7;
   --color-accent-hover:  #9488fa;
+  /* Accent used as TEXT (section labels, in-prose links). The light theme
+     overrides this to a darker shade below so it clears WCAG AA on light bg. */
+  --color-accent-text:   #7C6FF7;
+  /* Darker accent for white-on-accent surfaces (the primary button); dark
+     enough for #fff text to clear AA in BOTH themes. */
+  --color-accent-strong:       #5A4FD6;
+  --color-accent-strong-hover: #6A5BE8;
   --color-accent-record: #F5A623;
   --color-text:          #f0f0f2;
   --color-text-muted:    #8e8e9a;
@@ -40,6 +47,8 @@
     --color-text:      #1a1a1f;
     --color-text-muted: #5a5a6a;
     --color-code-bg:   #ececf0;
+    /* Darker accent so labels + in-prose links clear AA on the light bg. */
+    --color-accent-text: #5A4FD6;
   }
 
   /* macOS template icons are black-on-transparent — invert for light bg */
@@ -59,6 +68,13 @@
   .bar {
     height: 20px !important;
     animation: none !important;
+  }
+
+  /* Scroll-reveal is motion. With reduced motion, never hide the cards —
+     show them immediately regardless of the JS-gated start state. */
+  .feature-card {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
@@ -91,13 +107,23 @@ img {
 }
 
 a {
-  color: var(--color-accent);
+  color: var(--color-accent-text);
   text-decoration: none;
   transition: color var(--transition);
 }
 
 a:hover {
   color: var(--color-accent-hover);
+}
+
+/* In-prose links must be distinguishable without relying on color alone
+   (WCAG link-in-text-block). Standalone links — nav, CTAs, footer, badges —
+   are excluded; they read as links by position and shape. */
+.section-sub a,
+.feature-card p a,
+.req-list a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 kbd {
@@ -135,7 +161,7 @@ section {
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-accent-text);
   margin-bottom: 1rem;
 }
 
@@ -285,15 +311,15 @@ section {
 }
 
 .btn-primary {
-  background: var(--color-accent);
+  background: var(--color-accent-strong);
   color: #fff;
 }
 
 .btn-primary:hover {
-  background: var(--color-accent-hover);
+  background: var(--color-accent-strong-hover);
   color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(124, 111, 247, 0.35);
+  box-shadow: 0 8px 24px rgba(90, 79, 214, 0.35);
 }
 
 .btn-secondary {
@@ -329,13 +355,19 @@ section {
   padding:       1.75rem 1.5rem;
   box-shadow:    var(--shadow-card);
 
-  /* Scroll-fade initial state */
-  opacity: 0;
-  transform: translateY(24px);
+  /* Visible by DEFAULT — the core value props are never gated on JS. The
+     scroll-fade is progressive enhancement: only when JS sets `html.js` do
+     the cards start hidden and animate in (rules below + the head flag). */
   transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-.feature-card.visible {
+/* JS present: start hidden, then fade up as each card scrolls into view. */
+html.js .feature-card {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+html.js .feature-card.visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -579,7 +611,7 @@ code {
   width: 100%;
   text-align: center;
   font-size: 0.8rem;
-  color: var(--color-border);
+  color: var(--color-text-muted);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
