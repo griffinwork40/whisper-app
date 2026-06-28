@@ -1,0 +1,663 @@
+/* ============================================================
+   Whisper App Landing Page — styles.css
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   1. CSS Custom Properties (Design Tokens)
+   ---------------------------------------------------------- */
+:root {
+  --color-bg:            #0d0d0f;
+  --color-surface:       #141418;
+  --color-surface-2:     #1a1a22;
+  --color-border:        #2a2a32;
+  --color-accent:        #7C6FF7;
+  --color-accent-hover:  #9488fa;
+  --color-accent-record: #F5A623;
+  --color-text:          #f0f0f2;
+  --color-text-muted:    #8e8e9a;
+  --color-code-bg:       #101014;
+
+  --font-sans:  -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+  --font-mono:  "SF Mono", "Fira Code", "Cascadia Code", "JetBrains Mono", Menlo, monospace;
+
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  20px;
+
+  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.4);
+  --transition:  0.25s ease;
+
+  --max-w: 1080px;
+}
+
+/* Light mode overrides */
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-bg:        #f5f5f7;
+    --color-surface:   #ffffff;
+    --color-surface-2: #eeeef3;
+    --color-border:    #d0d0da;
+    --color-text:      #1a1a1f;
+    --color-text-muted: #5a5a6a;
+    --color-code-bg:   #ececf0;
+  }
+
+  /* macOS template icons are black-on-transparent — invert for light bg */
+  .state img {
+    filter: invert(0.85) !important;
+  }
+}
+
+/* Reduced-motion: kill all animations */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:   0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration:  0.01ms !important;
+  }
+
+  .bar {
+    height: 20px !important;
+    animation: none !important;
+  }
+}
+
+/* ----------------------------------------------------------
+   2. Reset & Base
+   ---------------------------------------------------------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background-color: var(--color-bg);
+  color:            var(--color-text);
+  font-family:      var(--font-sans);
+  line-height:      1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: color var(--transition);
+}
+
+a:hover {
+  color: var(--color-accent-hover);
+}
+
+kbd {
+  display: inline-block;
+  padding: 2px 7px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--color-text);
+}
+
+ul {
+  list-style: none;
+}
+
+/* ----------------------------------------------------------
+   3. Layout Utilities
+   ---------------------------------------------------------- */
+.container {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+section {
+  padding: 5rem 1.5rem;
+  max-width: var(--max-w);
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.section-sub {
+  font-size: 1.05rem;
+  color: var(--color-text-muted);
+  max-width: 600px;
+}
+
+.section-sub--centered {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ----------------------------------------------------------
+   4. Navbar
+   ---------------------------------------------------------- */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.5rem;
+  background: rgba(13, 13, 15, 0.75);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid var(--color-border);
+}
+
+@media (prefers-color-scheme: light) {
+  .navbar {
+    background: rgba(245, 245, 247, 0.82);
+  }
+}
+
+.nav-logo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+
+.nav-github {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.nav-github img {
+  height: 20px;
+  width: auto;
+}
+
+/* ----------------------------------------------------------
+   5. Hero
+   ---------------------------------------------------------- */
+.hero {
+  padding: 7rem 1.5rem 5rem;
+  text-align: center;
+  max-width: var(--max-w);
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: clamp(2.8rem, 8vw, 5.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  margin-bottom: 1.25rem;
+  background: linear-gradient(135deg, var(--color-text) 40%, var(--color-accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: var(--color-text-muted);
+  max-width: 540px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.65;
+}
+
+/* Waveform animation */
+.waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 56px;
+  margin: 2.25rem auto;
+}
+
+.bar {
+  width: 5px;
+  height: 8px;
+  background: var(--color-accent);
+  border-radius: 99px;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.bar:nth-child(1) { animation-delay: 0s;    background: #7C6FF7; }
+.bar:nth-child(2) { animation-delay: 0.1s;  background: #8a7cf8; }
+.bar:nth-child(3) { animation-delay: 0.2s;  background: #9488fa; }
+.bar:nth-child(4) { animation-delay: 0.3s;  background: var(--color-accent-record); }
+.bar:nth-child(5) { animation-delay: 0.4s;  background: #9488fa; }
+.bar:nth-child(6) { animation-delay: 0.5s;  background: #8a7cf8; }
+.bar:nth-child(7) { animation-delay: 0.6s;  background: #7C6FF7; }
+
+@keyframes pulse {
+  0%, 100% { height: 8px;  opacity: 0.55; }
+  50%       { height: 44px; opacity: 1;   }
+}
+
+/* CTA buttons */
+.cta-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2.75rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.6rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 111, 247, 0.35);
+}
+
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  transform: translateY(-2px);
+}
+
+/* ----------------------------------------------------------
+   6. Feature Grid
+   ---------------------------------------------------------- */
+.features {
+  border-top: 1px solid var(--color-border);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+}
+
+.feature-card {
+  background:    var(--color-surface);
+  border:        1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding:       1.75rem 1.5rem;
+  box-shadow:    var(--shadow-card);
+
+  /* Scroll-fade initial state */
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.feature-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.feature-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.feature-card p {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+/* ----------------------------------------------------------
+   7. How It Works
+   ---------------------------------------------------------- */
+.how-it-works {
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.state-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 2.75rem;
+  flex-wrap: wrap;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.state img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  /* dark mode: template icons are already white or light */
+}
+
+.state span {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.arrow {
+  font-size: 1.25rem;
+  color: var(--color-border);
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------------------------
+   8. Install / Code Block
+   ---------------------------------------------------------- */
+.install {
+  border-top: 1px solid var(--color-border);
+}
+
+.code-wrap {
+  position: relative;
+  margin-top: 2rem;
+  border-radius: var(--radius-md);
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.code-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.code-dots span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--color-border);
+}
+
+.code-dots span:nth-child(1) { background: #ff5f57; }
+.code-dots span:nth-child(2) { background: #febc2e; }
+.code-dots span:nth-child(3) { background: #28c840; }
+
+pre {
+  padding: 1.5rem 1.5rem 1.5rem;
+  overflow-x: auto;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.75;
+  color: var(--color-text);
+  white-space: pre;
+}
+
+.copy-btn {
+  padding: 0.3rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+  font-family: var(--font-sans);
+}
+
+.copy-btn:hover,
+.copy-btn.copied {
+  background: var(--color-accent);
+  color: #fff;
+  border-color: var(--color-accent);
+}
+
+/* ----------------------------------------------------------
+   9. Requirements
+   ---------------------------------------------------------- */
+.requirements {
+  border-top: 1px solid var(--color-border);
+}
+
+.req-list {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+
+.req-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.9rem 1rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.req-list li .req-emoji {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ----------------------------------------------------------
+   10. Roadmap
+   ---------------------------------------------------------- */
+.roadmap {
+  border-top: 1px solid var(--color-border);
+}
+
+.roadmap-list {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.roadmap-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.roadmap-list li:last-child {
+  border-bottom: none;
+}
+
+.roadmap-checkbox {
+  width: 17px;
+  height: 17px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: var(--color-surface);
+}
+
+/* ----------------------------------------------------------
+   11. Footer
+   ---------------------------------------------------------- */
+.footer {
+  border-top: 1px solid var(--color-border);
+  padding: 2.5rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.footer a {
+  color: var(--color-text-muted);
+}
+
+.footer a:hover {
+  color: var(--color-accent);
+}
+
+.footer img {
+  height: 20px;
+  width: auto;
+}
+
+.footer-tagline {
+  width: 100%;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-border);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------
+   12. Responsive Adjustments
+   ---------------------------------------------------------- */
+
+/* Tablet (≤ 768px) */
+@media (max-width: 768px) {
+  section {
+    padding: 3.5rem 1.25rem;
+  }
+
+  .hero {
+    padding: 5rem 1.25rem 3.5rem;
+  }
+
+  .state-flow {
+    gap: 0.75rem;
+  }
+
+  .arrow {
+    font-size: 1rem;
+  }
+}
+
+/* Mobile (≤ 480px) */
+@media (max-width: 480px) {
+  section {
+    padding: 2.75rem 1rem;
+  }
+
+  .hero {
+    padding: 4rem 1rem 2.75rem;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .state-flow {
+    gap: 0.5rem;
+  }
+
+  .state img {
+    width: 38px;
+    height: 38px;
+  }
+
+  .arrow {
+    font-size: 0.9rem;
+  }
+
+  .cta-group {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* How-It-Works flow: on narrow screens the four states + arrows wrap
+   awkwardly (a dangling → at the end of row 1, the 4th state orphaned
+   below). Stack the flow vertically with downward arrows so the
+   sequence reads cleanly top-to-bottom. */
+@media (max-width: 600px) {
+  .state-flow {
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .arrow {
+    transform: rotate(90deg);
+    font-size: 1.1rem;
+  }
+}

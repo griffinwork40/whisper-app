@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "echo 'whisper-app landing page is static — skipping install'",
+  "buildCommand": "echo 'whisper-app landing page is static — no build step'",
+  "outputDirectory": "landing",
+  "cleanUrls": true,
+  "trailingSlash": false
+}
