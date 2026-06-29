@@ -1,0 +1,424 @@
+/* ─── Custom properties ──────────────────────────────────────────────────── */
+:root {
+  --bg:           #0e0e0e;
+  --surface:      #161616;
+  --surface-2:    #1e1e1e;
+  --border:       #2a2a2a;
+  --text:         #c9c9c9;
+  --text-heading: #f0ede8;
+  --text-muted:   #9a9a9a;    /* was #717171 — bumped to pass WCAG AA */
+  --accent:       #e8855a;
+  --code-text:    #8ec07c;
+  --code-bg:      #111111;
+}
+
+/* ─── Box-sizing reset ───────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── Body ───────────────────────────────────────────────────────────────── */
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+    Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Container ──────────────────────────────────────────────────────────── */
+.container {
+  max-width: 780px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+/* ─── Typography ─────────────────────────────────────────────────────────── */
+h1 {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 700;
+  color: var(--text-heading);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-heading);
+  letter-spacing: -0.01em;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-heading);
+  margin-bottom: 0.4rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  max-width: 66ch;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* Inline links inside prose paragraphs must be distinguishable without color */
+p a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+a:hover,
+a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+code {
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", "Menlo", "Consolas",
+    monospace;
+  font-size: 0.875em;
+  color: var(--code-text);
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+
+kbd {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--text-heading);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0.15em 0.5em;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+/* ─── Section scaffolding ────────────────────────────────────────────────── */
+section {
+  padding-block: 3.5rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── Hero / header ──────────────────────────────────────────────────────── */
+.site-header {
+  padding-block: 4rem 3rem;
+}
+
+.hero-desc {
+  font-size: 1.1rem;
+  color: var(--text);
+  margin-top: 1.25rem;
+  max-width: 62ch;
+}
+
+.status-notice {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.5rem 0.875rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--text-muted);
+  border-radius: 4px;
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.status-notice strong {
+  color: var(--text);
+}
+
+/* ─── Hotkey display ─────────────────────────────────────────────────────── */
+.hotkey-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.hotkey-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-right: 0.25rem;
+}
+
+/* ─── CTA row ────────────────────────────────────────────────────────────── */
+.cta-row {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.cta-link:hover,
+.cta-link:focus-visible {
+  background: var(--accent);
+  color: var(--bg);
+  text-decoration: none;
+}
+
+.cta-link svg {
+  flex-shrink: 0;
+}
+
+.cta-secondary {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+.cta-secondary:hover,
+.cta-secondary:focus-visible {
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* ─── Waveform accent ────────────────────────────────────────────────────── */
+.waveform {
+  display: block;
+  margin-top: 2.5rem;
+  opacity: 0.35;
+  overflow: visible;
+}
+
+/* ─── How it works ───────────────────────────────────────────────────────── */
+.flow-steps {
+  list-style: none;
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.flow-steps li {
+  display: grid;
+  grid-template-columns: 1.75rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.flow-step-num {
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", "Menlo", "Consolas",
+    monospace;
+  font-size: 0.75rem;
+  color: var(--accent);
+  padding-top: 0.1em;
+}
+
+/* ─── Technical features ─────────────────────────────────────────────────── */
+/* Single-column list — no card grid, no uppercase labels */
+.feature-list {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.feature-item h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-heading);
+  margin-bottom: 0.35rem;
+}
+
+.feature-item p {
+  font-size: 0.95rem;
+  margin-bottom: 0;
+  max-width: 66ch;
+}
+
+/* ─── Code / terminal blocks ─────────────────────────────────────────────── */
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", "Menlo", "Consolas",
+    monospace;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--code-text);
+  margin-top: 1rem;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+  color: inherit;
+  border-radius: 0;
+}
+
+.code-block-label {
+  display: block;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", "Menlo", "Consolas",
+    monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-top: 1.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.code-block-label:first-of-type {
+  margin-top: 0;
+}
+
+/* ─── Install section ────────────────────────────────────────────────────── */
+.install-note {
+  margin-top: 1.25rem;
+  padding: 0.6rem 0.875rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.825rem;
+  color: var(--text-muted);
+}
+
+.install-note.ffmpeg-note {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+.install-note code {
+  font-size: 0.8em;
+}
+
+/* ─── Data flow section ──────────────────────────────────────────────────── */
+.data-flow-pre {
+  color: var(--text);
+  margin-top: 1.25rem;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+.site-footer {
+  padding-block: 2.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.footer-meta {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+}
+
+.footer-meta a {
+  color: var(--text-muted);
+}
+
+.footer-meta a:hover {
+  color: var(--accent);
+}
+
+.footer-version {
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", "Menlo", "Consolas",
+    monospace;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.15em 0.5em;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .container {
+    padding-inline: 1rem;
+  }
+
+  .site-header {
+    padding-block: 2.5rem 2rem;
+  }
+
+  section {
+    padding-block: 2.5rem;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+  }
+
+  pre {
+    font-size: 0.77rem;
+    word-break: normal;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .status-notice {
+    display: block;
+  }
+
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hotkey-display {
+    gap: 0.4rem;
+  }
+
+  .cta-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.875rem;
+  }
+}
