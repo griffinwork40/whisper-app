@@ -4,6 +4,8 @@ A minimal, **local-only** macOS menu-bar dictation app powered by [`mlx-whisper`
 
 No cloud. No telemetry. No Dock icon. Just a tray icon and a hotkey.
 
+🌐 **Website:** [whisper-app-ashy.vercel.app](https://whisper-app-ashy.vercel.app)
+
 > **Status:** v0 — works on the developer's machine. Apple Silicon (M-series) only. Not yet code-signed.
 
 ---
