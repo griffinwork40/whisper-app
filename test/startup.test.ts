@@ -9,6 +9,19 @@ import assert from 'node:assert/strict';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+// Mock electron before src/startup imports { systemPreferences } from it.
+// In CI the electron binary is not installed, so a real require('electron')
+// throws and this whole file fails to load. The pure functions under test
+// (parseDevices/selectDevice) never touch electron. Mirrors test/hotkey.test.ts.
+const Module = require('module');
+const _origElectronLoad = Module._load.bind(Module);
+Module._load = (id: string, ...rest: unknown[]) => {
+  if (id === 'electron') {
+    return { systemPreferences: { askForMediaAccess: async () => true } };
+  }
+  return _origElectronLoad(id, ...rest);
+};
+
 // Import the pure functions directly — no Electron required
 const { parseDevices, selectDevice } = require('../src/startup');
 

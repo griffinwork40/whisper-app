@@ -16,6 +16,7 @@ import { AudioRecorder } from './recorder';
 import { Transcriber } from './transcriber';
 import { HotkeyManager } from './hotkey';
 import { deliver } from './output';
+import { playStartSound, playStopSound } from './sound';
 import { runStartupChecks } from './startup';
 import * as logger from './logger';
 
@@ -74,6 +75,7 @@ app.whenReady().then(async () => {
     tray.setState('recording');
     logger.info(`Starting recording on device [${startupResult.deviceIndex}] ${startupResult.deviceName}`);
     recorder.start(startupResult.deviceIndex);
+    playStartSound();
   };
 
   const stopRecording = async () => {
@@ -83,6 +85,7 @@ app.whenReady().then(async () => {
 
     try {
       const wavPath = await recorder.stop();
+      playStopSound();
       logger.info(`Recording saved to: ${wavPath}`);
 
       const text = await transcriber.transcribe(
