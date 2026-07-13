@@ -106,8 +106,16 @@ app.whenReady().then(async () => {
         // own (customVocabulary-nudged) output, before it ever reaches the
         // clipboard or focused app.
         const text = applyReplacementRules(rawText, config.getReplacementRules());
-        await deliver(text, config.getOutputMode());
-        logger.info('Text delivered to output');
+
+        if (text.length === 0) {
+          // A replacement rule reduced the transcript to empty (e.g. a
+          // delete-style rule with `to: ""`). Apply the same guard as the
+          // silence case: don't clobber the clipboard or auto-type "".
+          logger.info('Transcript emptied by replacement rules — skipping delivery');
+        } else {
+          await deliver(text, config.getOutputMode());
+          logger.info('Text delivered to output');
+        }
       }
 
       appState = 'idle';

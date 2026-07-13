@@ -50,4 +50,11 @@ describe('applyReplacementRules', () => {
     const result = applyReplacementRules('hello world', [{ from: 'xyz', to: 'abc' }]);
     assert.equal(result, 'hello world');
   });
+
+  test('rule with empty "to" deletes matched text and can empty the transcript', () => {
+    // Drives main.ts's post-replacement empty-delivery guard: a delete-style
+    // rule can reduce a short transcript to "" — which must not be delivered.
+    assert.equal(applyReplacementRules('you', [{ from: 'you', to: '' }]), '');
+    assert.equal(applyReplacementRules('a b a', [{ from: 'a', to: '' }]), ' b ');
+  });
 });
