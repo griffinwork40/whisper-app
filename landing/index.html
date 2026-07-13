@@ -65,6 +65,18 @@
        Hero
        ============================================================ -->
   <section class="hero">
+    <!-- ── Visual signature ──────────────────────────────────────
+         A small signal on the surface over a much larger hidden
+         depth, crossed by one precise line of measure. The waveform
+         below is the signal's core; these layers are its field.
+         Entirely decorative (aria-hidden, pointer-events:none). -->
+    <div class="signal-field" aria-hidden="true">
+      <div class="deep-field"></div>
+      <div class="contour-rings"></div>
+      <div class="hero-threshold"></div>
+      <span class="scope-coord">00 · signal</span>
+    </div>
+
     <h1>Speak. It&nbsp;types.</h1>
 
     <p class="hero-sub">
@@ -152,6 +164,24 @@
     </p>
 
     <div class="state-flow" role="img" aria-label="App state flow: Idle → Recording → Processing → Done or Error">
+      <!-- The earned path: repeated passes (braided traces, cool) compress
+           into one confident route that warms as it rises into use. The four
+           states ride this route. Decorative. -->
+      <svg class="earned-path-track" aria-hidden="true" viewBox="0 0 600 120" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="routeWarm" gradientUnits="userSpaceOnUse" x1="14" y1="0" x2="586" y2="0">
+            <stop class="rs-cool" offset="0%"></stop>
+            <stop class="rs-mid"  offset="55%"></stop>
+            <stop class="rs-warm" offset="100%"></stop>
+          </linearGradient>
+        </defs>
+        <!-- two braided passes converging onto the centerline -->
+        <path class="route-braid" d="M14,40 C 120,40 150,60 250,60" fill="none" vector-effect="non-scaling-stroke"></path>
+        <path class="route-braid" d="M14,80 C 120,80 150,60 250,60" fill="none" vector-effect="non-scaling-stroke"></path>
+        <!-- the single earned route, warming as it runs out -->
+        <path class="route-spine" d="M250,60 L586,60" fill="none" vector-effect="non-scaling-stroke"></path>
+      </svg>
+
       <div class="state">
         <img src="./assets/icon-idle.png" alt="Idle state tray icon" width="48" height="48">
         <span>Idle</span>
@@ -183,7 +213,7 @@
   <!-- ============================================================
        Install
        ============================================================ -->
-  <section class="install" id="install">
+  <section class="install elevated-field" id="install">
     <p class="section-label">Install</p>
     <h2 class="section-title">Up and running in minutes.</h2>
     <p class="section-sub">
@@ -195,6 +225,7 @@
         <div class="code-dots" aria-hidden="true">
           <span></span><span></span><span></span>
         </div>
+        <span class="code-scope" aria-hidden="true">~/whisper-app</span>
         <button type="button" class="copy-btn" onclick="copyInstall()" aria-label="Copy install commands to clipboard">
           Copy
         </button>

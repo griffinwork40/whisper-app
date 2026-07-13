@@ -35,6 +35,44 @@
   --transition:  0.25s ease;
 
   --max-w: 1080px;
+
+  /* ----------------------------------------------------------
+     VISUAL SIGNATURE SYSTEM — design tokens
+     Encodes: signal → depth → compression → rise → embodiment.
+     These are the *only* knobs the signature reads from; theme
+     overrides (light mode, below) re-point them so the same
+     classes render as deep-glow on dark and restrained-cartographic
+     on light. Dark defaults here.
+     ---------------------------------------------------------- */
+
+  /* DEPTH — cool, submerged structure beneath the signal. */
+  --sig-depth-core:  rgba(124, 111, 247, 0.16); /* pooled depth under the signal */
+  --sig-depth-wash:  rgba(124, 111, 247, 0.08); /* fainter; sits behind body copy */
+  --sig-depth-far:   rgba(58, 52, 120, 0.00);   /* fades to nothing at the rim   */
+  --sig-deep-veil:   rgba(10, 10, 18, 0.55);     /* darkens the well below surface */
+
+  /* RINGS — concentric contour lines (topography, not glow). */
+  --sig-ring:        rgba(124, 111, 247, 0.20);
+  --sig-ring-faint:  rgba(124, 111, 247, 0.07);
+  --sig-ring-w:      1px;
+
+  /* ROUTE — the earned path; cool where deep, warm where it rises. */
+  --sig-route-cool:  rgba(124, 111, 247, 0.55);
+  --sig-route-mid:   rgba(150, 120, 200, 0.50);
+  --sig-route-warm:  rgba(245, 166, 35, 0.70);
+  --sig-route-track: rgba(124, 111, 247, 0.14); /* faint full-length bed */
+
+  /* MEASURE — one ruthless, crisp line of judgment across the field. */
+  --sig-measure:     rgba(240, 240, 242, 0.30);
+  --sig-measure-dim: rgba(240, 240, 242, 0.13);
+
+  /* EMBODIMENT — warm, elevated, outward-facing arrival zone. */
+  --sig-warm-tint:   rgba(245, 166, 35, 0.06);
+  --sig-warm-edge:   rgba(245, 166, 35, 0.38);
+
+  /* Ambient motion timings (slow, never competing with copy). */
+  --sig-ripple-dur:  9s;
+  --sig-drift-dur:   14s;
 }
 
 /* Light mode overrides */
@@ -49,6 +87,28 @@
     --color-code-bg:   #ececf0;
     /* Darker accent so labels + in-prose links clear AA on the light bg. */
     --color-accent-text: #5A4FD6;
+
+    /* Signature, light theme: restrained cartographic, not deep glow.
+       Depth reads as a cool paper-shadow; rings as faint survey lines;
+       measure as a crisp dark rule. */
+    --sig-depth-core:  rgba(90, 79, 214, 0.07);
+    --sig-depth-wash:  rgba(90, 79, 214, 0.045);
+    --sig-depth-far:   rgba(90, 79, 214, 0.00);
+    --sig-deep-veil:   rgba(214, 216, 230, 0.45);
+
+    --sig-ring:        rgba(90, 79, 214, 0.16);
+    --sig-ring-faint:  rgba(90, 79, 214, 0.06);
+
+    --sig-route-cool:  rgba(90, 79, 214, 0.50);
+    --sig-route-mid:   rgba(130, 110, 190, 0.46);
+    --sig-route-warm:  rgba(214, 140, 20, 0.72);
+    --sig-route-track: rgba(90, 79, 214, 0.12);
+
+    --sig-measure:     rgba(26, 26, 31, 0.34);
+    --sig-measure-dim: rgba(26, 26, 31, 0.16);
+
+    --sig-warm-tint:   rgba(245, 166, 35, 0.09);
+    --sig-warm-edge:   rgba(214, 140, 20, 0.45);
   }
 
   /* macOS template icons are black-on-transparent — invert for light bg */
@@ -235,6 +295,10 @@ section {
   text-align: center;
   max-width: var(--max-w);
   margin: 0 auto;
+  /* Hold the signal-field behind the content in its own stacking context
+     so the decorative depth never paints over copy or steals clicks. */
+  position: relative;
+  isolation: isolate;
 }
 
 .hero h1 {
@@ -338,7 +402,7 @@ section {
    6. Feature Grid
    ---------------------------------------------------------- */
 .features {
-  border-top: 1px solid var(--color-border);
+  position: relative; /* routed seam drawn via ::before (signature system) */
 }
 
 .features-grid {
@@ -395,7 +459,7 @@ html.js .feature-card.visible {
    7. How It Works
    ---------------------------------------------------------- */
 .how-it-works {
-  border-top: 1px solid var(--color-border);
+  position: relative; /* routed seam drawn via ::before (signature system) */
   text-align: center;
 }
 
@@ -440,7 +504,7 @@ html.js .feature-card.visible {
    8. Install / Code Block
    ---------------------------------------------------------- */
 .install {
-  border-top: 1px solid var(--color-border);
+  position: relative; /* routed seam drawn via ::before (signature system) */
 }
 
 .code-wrap {
@@ -514,7 +578,7 @@ code {
    9. Requirements
    ---------------------------------------------------------- */
 .requirements {
-  border-top: 1px solid var(--color-border);
+  position: relative; /* routed seam drawn via ::before (signature system) */
 }
 
 .req-list {
@@ -546,7 +610,7 @@ code {
    10. Roadmap
    ---------------------------------------------------------- */
 .roadmap {
-  border-top: 1px solid var(--color-border);
+  position: relative; /* routed seam drawn via ::before (signature system) */
 }
 
 .roadmap-list {
@@ -583,7 +647,7 @@ code {
    11. Footer
    ---------------------------------------------------------- */
 .footer {
-  border-top: 1px solid var(--color-border);
+  position: relative; /* routed seam drawn via ::before (signature system) */
   padding: 2.5rem 1.5rem;
   display: flex;
   align-items: center;
@@ -692,4 +756,306 @@ code {
     transform: rotate(90deg);
     font-size: 1.1rem;
   }
+}
+
+/* ============================================================
+   13. VISUAL SIGNATURE SYSTEM
+   ------------------------------------------------------------
+   One visual law governs the page: a small SIGNAL on the surface
+   reveals hidden DEPTH; repeated passes COMPRESS into an earned
+   path that RISES into warm, usable EMBODIMENT.
+
+   Three recurring motifs (repetition with variation) + a cool→warm
+   field migration carry it — driven entirely by the --sig-* tokens
+   so the same classes render as deep-glow on dark and restrained
+   cartography on light:
+
+     • signal-field / deep-field / contour-rings  (signal over depth)
+     • scope-rule  (one ruthless line of measure, on every label)
+     • earned-path (braided passes compress into one warming route)
+     • elevated-field (warm embodiment zone at the install/CTA)
+
+   Every layer here is decorative: pointer-events:none, behind
+   content, and authored so its STILL state is the intended image —
+   ambient motion only breathes on top (see reduced-motion, §1).
+   ============================================================ */
+
+/* Station numbering for the scope-rule labels. Hero is the unnumbered
+   origin (its own "00 · signal" coordinate); Features → Roadmap are 01–05. */
+main { counter-reset: sig-station; }
+
+/* ---- Motif 1: scope-rule — measure crossing the organic field --------- */
+/* Each section label becomes a measured station: a monospace index, a crisp
+   tick, the label, then a rule extending into the field. Repeated with no
+   variation, this is the "same hand" signing every section. */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  counter-increment: sig-station;
+}
+.section-label::before {
+  content: counter(sig-station, decimal-leading-zero);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+  padding-right: 0.6rem;
+  border-right: 1px solid var(--sig-measure);
+}
+.section-label::after {
+  content: "";
+  width: 2.25rem;
+  height: 1px;
+  background: linear-gradient(90deg, var(--sig-measure-dim), transparent);
+}
+
+/* ---- Motif 2 (glue): routed seams — the earned path crossing each
+        boundary, migrating cool (discovery) → warm (embodiment) downward -- */
+.features::before, .how-it-works::before, .install::before,
+.requirements::before, .roadmap::before, .footer::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  pointer-events: none;
+  /* a faint measured horizon, with a brighter route segment threading the
+     left edge (under the scope-rule index it aligns with). */
+  background:
+    linear-gradient(90deg,
+      var(--seam-route, var(--sig-route-cool)) 0,
+      var(--seam-route, var(--sig-route-cool)) 56px,
+      var(--sig-measure-dim) 56px,
+      var(--sig-measure-dim) 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0, #000 72%, transparent 100%);
+          mask-image: linear-gradient(90deg, #000 0, #000 72%, transparent 100%);
+}
+/* discovery zones run cool; from Install down the route has warmed. */
+.features, .how-it-works { --seam-route: var(--sig-route-cool); }
+.install, .requirements, .roadmap, .footer { --seam-route: var(--sig-route-warm); }
+
+/* ---- Motif 3: signal-field over deep-field (the hero) ----------------- */
+/* A small signal (the waveform, in flow above) sitting over a much larger
+   submerged structure, crossed by one precise line of measure. */
+.signal-field {
+  position: absolute;
+  /* break out to the full viewport behind the centered hero column */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  top: 0;
+  bottom: -2.5rem;          /* spill into the seam below = depth pooling down */
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  --cx: 50%;                /* signal center — tuned to the waveform's place */
+  --cy: 62%;
+}
+
+/* DEPTH: a glow pooled around the signal, and a darker well beneath the
+   surface implying the vast structure below. */
+.deep-field {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(46% 42% at var(--cx) var(--cy),
+      var(--sig-depth-core) 0%, var(--sig-depth-far) 72%),
+    radial-gradient(120% 80% at 50% 128%,
+      var(--sig-deep-veil) 0%, transparent 62%);
+}
+
+/* RINGS: concentric contour lines (topography, not decoration), focal near
+   the signal and dissolving toward the rim. */
+.contour-rings {
+  position: absolute;
+  inset: 0;
+  transform-origin: var(--cx) var(--cy);
+  background:
+    repeating-radial-gradient(circle at var(--cx) var(--cy),
+      transparent 0 37px,
+      var(--sig-ring) 37px 38px,
+      transparent 38px 76px);
+  -webkit-mask-image: radial-gradient(circle at var(--cx) var(--cy),
+      #000 0%, #000 16%, transparent 60%);
+          mask-image: radial-gradient(circle at var(--cx) var(--cy),
+      #000 0%, #000 16%, transparent 60%);
+  animation: sig-ripple var(--sig-ripple-dur) ease-in-out infinite;
+}
+
+/* MEASURE: a faint horizon at the signal's depth, pierced by one crisp tick
+   where the signal breaks the surface. */
+.hero-threshold {
+  position: absolute;
+  left: 0; right: 0;
+  top: var(--cy);
+  border-top: 1px solid var(--sig-measure-dim);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent);
+}
+.hero-threshold::before {
+  content: "";
+  position: absolute;
+  left: var(--cx);
+  top: -4px;
+  width: 1px;
+  height: 9px;
+  background: var(--sig-measure);
+  transform: translateX(-50%);
+}
+
+/* A cartographic coordinate tag, aligned to the content column on wide
+   screens. The "00" station: the origin signal. */
+.scope-coord {
+  position: absolute;
+  top: 1.4rem;
+  left: max(1.5rem, calc(50% - (var(--max-w) / 2) + 1.5rem));
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  opacity: 0.75;
+}
+.scope-coord::before {
+  content: "\2316\00a0";          /* ⌖ position marker */
+  color: var(--sig-route-warm);
+}
+
+/* Faint topographic basin behind the discovery (Features) zone — denser,
+   cooler, lower-left, per the compositional default. */
+.features { isolation: isolate; }
+.features::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* The basin pools lower-left, behind the cards (where the discoveries are
+     pulled from) — kept clear of the label/heading so copy contrast is never
+     reduced. Faint wash + faint survey rings. */
+  background:
+    radial-gradient(95% 70% at 12% 62%, var(--sig-depth-wash), transparent 60%),
+    repeating-radial-gradient(circle at 10% 64%,
+      transparent 0 33px, var(--sig-ring-faint) 33px 34px, transparent 34px 67px);
+  -webkit-mask-image: radial-gradient(100% 62% at 14% 64%, #000 0%, #000 22%, transparent 66%);
+          mask-image: radial-gradient(100% 62% at 14% 64%, #000 0%, #000 22%, transparent 66%);
+}
+
+/* ---- Motif 2: earned-path — braided passes compress into one warm route - */
+.state-flow {
+  position: relative;
+  isolation: isolate;
+}
+.earned-path-track {
+  position: absolute;
+  left: 0; right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 120px;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.9;
+}
+.route-braid {
+  stroke: var(--sig-route-cool);
+  stroke-width: 1.4;
+  opacity: 0.55;
+}
+.route-spine {
+  stroke: url(#routeWarm);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 5 7;
+  animation: sig-route-drift var(--sig-drift-dur) linear infinite;
+}
+.rs-cool { stop-color: var(--sig-route-cool); }
+.rs-mid  { stop-color: var(--sig-route-mid); }
+.rs-warm { stop-color: var(--sig-route-warm); }
+
+/* ---- Embodiment: elevated-field — the warm, resolved arrival zone ------ */
+.install { isolation: isolate; }
+.elevated-field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  /* warmth rising in the upper-right = resolved, outward-facing. */
+  background:
+    radial-gradient(75% 60% at 82% 14%, var(--sig-warm-tint), transparent 72%);
+}
+
+/* The code block, framed like an instrument pulled from the field: a warm
+   lit top edge (the route resolving into use) and a carved inner highlight. */
+.install .code-wrap {
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.install .code-wrap::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  z-index: 1;
+  background: linear-gradient(90deg, var(--sig-route-cool), var(--sig-route-warm));
+  opacity: 0.85;
+}
+.code-scope {
+  margin-left: 0.85rem;
+  margin-right: auto;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+}
+
+/* ---- Ambient motion (slow; never competes with copy) ------------------ */
+@keyframes sig-ripple {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.9;  transform: scale(1.045); }
+}
+@keyframes sig-route-drift {
+  to { stroke-dashoffset: -48; }
+}
+
+/* ---- Signature responsive recomposition ------------------------------- */
+/* The system recomposes intentionally on small screens — it must not
+   collapse into visual rubble. */
+@media (max-width: 768px) {
+  .signal-field { --cy: 58%; }
+  .scope-coord  { left: 1.25rem; font-size: 0.66rem; }
+}
+
+@media (max-width: 600px) {
+  /* How-It-Works stacks vertically here; swap the horizontal route for a
+     vertical spine that warms top→bottom, behind the stacked states. */
+  .earned-path-track { display: none; }
+  .state-flow::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: 50%;
+    top: 6%;
+    bottom: 6%;
+    width: 2px;
+    transform: translateX(-50%);
+    border-radius: 2px;
+    background: linear-gradient(180deg,
+      var(--sig-route-cool) 0%, var(--sig-route-mid) 55%, var(--sig-route-warm) 100%);
+    opacity: 0.5;
+  }
+}
+
+@media (max-width: 480px) {
+  /* tighten the contour rings + measure rule so they read on a narrow column */
+  .signal-field { --cy: 56%; bottom: -1.5rem; }
+  .section-label::after { width: 1.5rem; }
+}
+
+/* Reduced motion: freeze the ambient layers to their still state. The global
+   reduce block (§1) already neutralizes durations; these make the frozen
+   frame the cleanest one (rings calm, route solid). */
+@media (prefers-reduced-motion: reduce) {
+  .contour-rings { animation: none !important; opacity: 0.5 !important; transform: none !important; }
+  .route-spine   { animation: none !important; stroke-dasharray: none !important; }
 }
