@@ -75,6 +75,15 @@ def main() -> None:
             default="en",
             help="Language code (ISO 639-1) or 'auto' for auto-detection",
         )
+        parser.add_argument(
+            "--initial-prompt",
+            default=None,
+            help=(
+                "Optional text passed to Whisper as initial_prompt to bias "
+                "decoding toward custom vocabulary/proper nouns. Whisper "
+                "truncates this to roughly its last ~220 tokens."
+            ),
+        )
         args = parser.parse_args()
 
         # Silence gate: avoid invoking Whisper on essentially-empty audio,
@@ -93,6 +102,7 @@ def main() -> None:
             args.audio,
             path_or_hf_repo=args.model,
             language=args.language if args.language != "auto" else None,
+            initial_prompt=args.initial_prompt,
             verbose=False,
         )
 

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- `customVocabulary` config field — passed to Whisper as `initial_prompt` to bias transcription toward custom vocabulary, proper nouns, or a punctuation/style hint (config-file only, no tray UI yet).
+- `replacementRules` config field — literal, case-sensitive find/replace pairs applied to the transcript before delivery, for words the model reliably mangles the same way every time.
+
 ## [0.1.0] — 2026-05-21
 
 Initial public release.

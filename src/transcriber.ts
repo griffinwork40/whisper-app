@@ -47,9 +47,12 @@ export class Transcriber {
    * Transcribe a WAV file using the Python helper script.
    * Deletes the WAV file after completion (success or failure).
    *
-   * @param wavPath  - Path to the WAV file to transcribe
-   * @param model    - HuggingFace model repo ID
-   * @param language - Language code (ISO 639-1) or 'auto'
+   * @param wavPath      - Path to the WAV file to transcribe
+   * @param model        - HuggingFace model repo ID
+   * @param language     - Language code (ISO 639-1) or 'auto'
+   * @param initialPrompt - Optional text passed to Whisper as `initial_prompt`
+   *   to bias decoding toward custom vocabulary/proper nouns. Omitted from the
+   *   spawned command entirely when empty, so the Python default (None) applies.
    * @returns Transcribed text string
    * @throws TranscriptionError on non-zero exit or timeout
    */
@@ -57,9 +60,10 @@ export class Transcriber {
     wavPath: string,
     model: ModelId,
     language: string,
+    initialPrompt = '',
   ): Promise<string> {
     try {
-      return await this.runScript(wavPath, model, language);
+      return await this.runScript(wavPath, model, language, initialPrompt);
     } finally {
       // Unconditionally delete the WAV file
       await new Promise<void>(resolve => {
@@ -79,6 +83,7 @@ export class Transcriber {
     wavPath: string,
     model: ModelId,
     language: string,
+    initialPrompt: string,
   ): Promise<string> {
     return new Promise((resolve, reject) => {
       const args = [
@@ -87,6 +92,14 @@ export class Transcriber {
         '--model', model,
         '--language', language,
       ];
+
+      // Only pass the flag when non-empty: an explicit empty string would
+      // still be "not None" on the Python side and encode a spurious prompt
+      // token, so omitting it entirely lets transcribe.py's argparse default
+      // (None) apply.
+      if (initialPrompt.trim().length > 0) {
+        args.push('--initial-prompt', initialPrompt);
+      }
 
       logger.debug(`Spawning: ${this.pythonPath} ${args.join(' ')}`);
 
