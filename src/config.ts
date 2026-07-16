@@ -22,6 +22,7 @@ interface ConfigSchema {
   outputMode: OutputMode;
   pythonPath: string;
   tempDir: string;
+  playSounds: boolean;
 }
 
 const defaults: ConfigSchema = {
@@ -32,6 +33,7 @@ const defaults: ConfigSchema = {
   outputMode: 'clipboard',
   pythonPath: 'python3',
   tempDir: '/tmp',
+  playSounds: true,
 };
 
 interface ConfigOptions {
@@ -111,5 +113,13 @@ export class Config {
 
   setPythonPath(pythonPath: string): void {
     this.store.set('pythonPath', pythonPath);
+  }
+
+  getPlaySounds(): boolean {
+    return this.store.get('playSounds');
+  }
+
+  setPlaySounds(enabled: boolean): void {
+    this.store.set('playSounds', enabled);
   }
 }
