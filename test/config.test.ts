@@ -88,6 +88,30 @@ describe('Config', () => {
     assert.equal(config.getOutputMode(), 'autotype');
   });
 
+  test('default playSounds is true', () => {
+    const { Config } = require('../src/config');
+    const config = new Config({ cwd: tempDir });
+    assert.equal(config.getPlaySounds(), true);
+  });
+
+  test('setPlaySounds / getPlaySounds round-trip', () => {
+    const { Config } = require('../src/config');
+    const config = new Config({ cwd: tempDir });
+    config.setPlaySounds(false);
+    assert.equal(config.getPlaySounds(), false);
+    config.setPlaySounds(true);
+    assert.equal(config.getPlaySounds(), true);
+  });
+
+  test('playSounds persists across Config instances', () => {
+    const { Config } = require('../src/config');
+    const config1 = new Config({ cwd: tempDir });
+    config1.setPlaySounds(false);
+
+    const config2 = new Config({ cwd: tempDir });
+    assert.equal(config2.getPlaySounds(), false);
+  });
+
   test('persistence: new Config instance sees updated value', () => {
     const { Config } = require('../src/config');
     const config1 = new Config({ cwd: tempDir });

@@ -10,17 +10,21 @@ Usage:
     pip install numpy scipy soundfile        # one-time (not a runtime dep)
     python3 scripts/gen-sounds.py            # writes assets/sounds/{start,stop}.aiff
 
-Design — "cool, catchy, captivating", not a system beep:
-  - FM-bell / additive timbre (glassy, expensive-sounding) instead of bare sine
-  - Musical arpeggios in C major (a recognizable, matched motif pair)
-      START = ascending C major  C5 E5 G5 C6  -> "bloom / opening / listening"
-      STOP  = descending         C6 G5 E5 C5  -> "settle / resolved / done"
+Design — a crisp, subtle cue that fires on *every* dictation, so it must be
+short, quiet, and clean (NOT a loud, brick-limited jingle):
+  - FM-bell / additive timbre (glassy) with a soft modulation index
+  - Minimal two-note motif — an open perfect fifth (a matched, recognizable pair)
+      START = ascending  C5 -> G5   "open / listening"
+      STOP  = descending G5 -> C5   "settle / done"
   - Per-note fast pluck envelope (percussive, satisfying)
-  - Shimmer octave layer for sparkle (brighter on start, softer on stop)
-  - Equal-power stereo pan sweep across the notes (width + motion)
-  - Light algorithmic plate reverb tail (decorrelated L/R) for polish
-  - Gentle high-pass + low-pass shaping, fade-out, soft-limit (no clicks/clipping)
-  - Trimmed so file length tracks audible content (start ~0.5s, stop ~0.65s)
+  - Light shimmer octave for a touch of sparkle (brighter on start)
+  - Gentle equal-power stereo pan for a little width
+  - Very light plate-ish reverb tail for polish
+  - Gentle high-pass + low-pass, fade-out, and — critically — NO tanh
+    soft-clip: the signal is peak-normalized to a modest -6 dBFS with its
+    natural dynamics intact (crest ~3, zero flat-topping), so it never sounds
+    saturated or harsh the way a loud limited master does.
+  - Trimmed so file length tracks audible content (~0.28s / ~0.31s)
 """
 
 from pathlib import Path
@@ -33,11 +37,16 @@ SR = 44100
 OUT_DIR = Path(__file__).resolve().parent.parent / "assets" / "sounds"
 
 # Equal-tempered C major frequencies
-C5, E5, G5, C6 = 523.25, 659.25, 783.99, 1046.50
+C5, G5 = 523.25, 783.99
+
+# Master peak target. Deliberately modest for a UI cue so it ducks under
+# speech instead of stabbing over it. NOTE: keep well below 0 dBFS — the
+# whole point of this rewrite is to avoid a loud, limited "brick".
+PEAK_DBFS = -6.0
 
 
-def fm_bell(freq, dur, *, ratio=2.0, index0=3.2, amp=1.0, shimmer=0.18,
-            tau_amp=0.18, tau_idx=0.055):
+def fm_bell(freq, dur, *, ratio=2.0, index0=2.6, amp=1.0, shimmer=0.12,
+            tau_amp=0.14, tau_idx=0.05):
     """One glassy FM-bell note with a fast pluck envelope."""
     n = int(dur * SR)
     t = np.arange(n) / SR
@@ -53,7 +62,7 @@ def fm_bell(freq, dur, *, ratio=2.0, index0=3.2, amp=1.0, shimmer=0.18,
     carrier = np.sin(2 * np.pi * freq * t + modulator)
 
     body = 0.5 * np.sin(2 * np.pi * freq * t)
-    shim = shimmer * np.sin(2 * np.pi * freq * 2 * t) * np.exp(-t / 0.045)
+    shim = shimmer * np.sin(2 * np.pi * freq * 2 * t) * np.exp(-t / 0.04)
 
     return (carrier + body + shim) * env * amp
 
@@ -64,9 +73,8 @@ def pan(mono, p):
     return np.column_stack((mono * np.cos(angle), mono * np.sin(angle)))
 
 
-def stereo_reverb(stereo, *, mix=0.22, tail=0.30, predelay=0.012, seed=7):
+def stereo_reverb(stereo, *, mix, tail, predelay=0.01, seed=7):
     """Light plate-ish reverb via convolution with decaying decorrelated noise."""
-    rng = np.random.default_rng(seed)
     m = int(tail * SR)
     t = np.arange(m) / SR
     decay = np.exp(-t / (tail * 0.5))
@@ -90,7 +98,7 @@ def stereo_reverb(stereo, *, mix=0.22, tail=0.30, predelay=0.012, seed=7):
     return out
 
 
-def trim_tail(stereo, *, thresh_db=-40.0, pad=0.015):
+def trim_tail(stereo, *, thresh_db=-45.0, pad=0.012):
     """Drop trailing near-silence so file length tracks audible content."""
     peak = np.max(np.abs(stereo)) or 1.0
     thr = peak * 10 ** (thresh_db / 20.0)
@@ -102,16 +110,20 @@ def trim_tail(stereo, *, thresh_db=-40.0, pad=0.015):
     return stereo[:last]
 
 
-def shape_and_master(stereo, *, peak_dbfs=-1.5):
-    """High-pass + low-pass, soft-limit, fade-out, normalize to a target peak."""
-    sos_hp = butter(2, 110, btype="highpass", fs=SR, output="sos")
-    sos_lp = butter(4, 13000, btype="lowpass", fs=SR, output="sos")
+def shape_and_master(stereo, *, peak_dbfs=PEAK_DBFS):
+    """High-pass + low-pass, fade-out, peak-normalize.
+
+    No soft-clip / limiter: we normalize to a modest peak and keep the
+    natural transient dynamics. Limiting a summed, reverberant signal up to
+    ~-1.5 dBFS is exactly what made the previous cues sound harsh (flat-topped
+    brick, crest ~1.1). Here crest stays ~3+ and there is no flat-topping.
+    """
+    sos_hp = butter(2, 90, btype="highpass", fs=SR, output="sos")
+    sos_lp = butter(4, 14000, btype="lowpass", fs=SR, output="sos")
     for ch in range(2):
         x = sosfilt(sos_hp, stereo[:, ch])
         x = sosfilt(sos_lp, x)
         stereo[:, ch] = x
-
-    stereo = np.tanh(stereo * 1.05)
 
     fade = min(int(0.012 * SR), len(stereo))
     stereo[-fade:] *= np.linspace(1.0, 0.0, fade)[:, None]
@@ -123,8 +135,8 @@ def shape_and_master(stereo, *, peak_dbfs=-1.5):
 
 def render(freqs, *, ascending, shimmer, onset, note_dur, last_dur,
            tau_other, tau_last, reverb_mix, reverb_tail, seed):
-    """Render an arpeggio with a stereo pan sweep + reverb, trimmed tight."""
-    pans = np.linspace(-0.45, 0.45, len(freqs))
+    """Render an arpeggio with a gentle stereo pan + reverb, trimmed tight."""
+    pans = np.linspace(-0.4, 0.4, len(freqs))
     if not ascending:
         pans = pans[::-1]
 
@@ -134,7 +146,7 @@ def render(freqs, *, ascending, shimmer, onset, note_dur, last_dur,
     for i, f in enumerate(freqs):
         is_last = i == len(freqs) - 1
         dur = last_dur if is_last else note_dur
-        amp = 1.0 if is_last else 0.82
+        amp = 1.0 if is_last else 0.8
         note = fm_bell(f, dur, amp=amp, shimmer=shimmer,
                        tau_amp=tau_last if is_last else tau_other)
         st = pan(note, pans[i])
@@ -149,15 +161,15 @@ def render(freqs, *, ascending, shimmer, onset, note_dur, last_dur,
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    start = render([C5, E5, G5, C6], ascending=True, shimmer=0.22,
-                   onset=0.047, note_dur=0.16, last_dur=0.26,
-                   tau_other=0.075, tau_last=0.12,
-                   reverb_mix=0.16, reverb_tail=0.10, seed=7)
+    start = render([C5, G5], ascending=True, shimmer=0.12,
+                   onset=0.058, note_dur=0.10, last_dur=0.17,
+                   tau_other=0.06, tau_last=0.10,
+                   reverb_mix=0.08, reverb_tail=0.05, seed=3)
 
-    stop = render([C6, G5, E5, C5], ascending=False, shimmer=0.10,
-                  onset=0.052, note_dur=0.18, last_dur=0.34,
-                  tau_other=0.085, tau_last=0.18,
-                  reverb_mix=0.22, reverb_tail=0.15, seed=13)
+    stop = render([G5, C5], ascending=False, shimmer=0.06,
+                  onset=0.062, note_dur=0.11, last_dur=0.19,
+                  tau_other=0.07, tau_last=0.12,
+                  reverb_mix=0.10, reverb_tail=0.06, seed=5)
 
     for name, sig in (("start", start), ("stop", stop)):
         path = OUT_DIR / f"{name}.aiff"
