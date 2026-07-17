@@ -1,7 +1,7 @@
 /**
  * TrayManager — manages the macOS menu-bar tray icon and context menu.
  * Extends EventEmitter.
- * Emits: 'quit', 'modelChange', 'outputModeChange'
+ * Emits: 'quit', 'modelChange', 'outputModeChange', 'hotkeyModeChange', 'soundsToggle'
  *
  * Note: left-clicking the tray icon opens the context menu (Electron default
  * when a context menu is set). Recording is only triggered by the hotkey.
@@ -157,6 +157,7 @@ export class TrayManager extends EventEmitter {
     const currentModel = config.getModel();
     const currentMode = config.getOutputMode();
     const currentHotkeyMode = config.getHotkeyMode();
+    const playSounds = config.getPlaySounds();
 
     const modelItems = VALID_MODELS.map(modelId => ({
       label: modelId.replace('mlx-community/', ''),
@@ -214,6 +215,13 @@ export class TrayManager extends EventEmitter {
       { type: 'separator' },
       { label: 'Hotkey Mode', enabled: false },
       ...hotkeyModeItems,
+      { type: 'separator' },
+      {
+        label: 'Play sounds',
+        type: 'checkbox' as const,
+        checked: playSounds,
+        click: (menuItem) => this.emit('soundsToggle', menuItem.checked),
+      },
       { type: 'separator' },
       {
         label: 'Quit',

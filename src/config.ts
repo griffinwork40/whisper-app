@@ -31,6 +31,7 @@ interface ConfigSchema {
    *  in array order. Complements customVocabulary: that *nudges* the model,
    *  this *guarantees* an exact substitution. */
   replacementRules: ReplacementRule[];
+  playSounds: boolean;
 }
 
 const defaults: ConfigSchema = {
@@ -43,6 +44,7 @@ const defaults: ConfigSchema = {
   tempDir: '/tmp',
   customVocabulary: '',
   replacementRules: [],
+  playSounds: true,
 };
 
 interface ConfigOptions {
@@ -154,5 +156,13 @@ export class Config {
       }
     }
     this.store.set('replacementRules', rules);
+  }
+
+  getPlaySounds(): boolean {
+    return this.store.get('playSounds');
+  }
+
+  setPlaySounds(enabled: boolean): void {
+    this.store.set('playSounds', enabled);
   }
 }

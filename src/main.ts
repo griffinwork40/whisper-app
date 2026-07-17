@@ -76,7 +76,7 @@ app.whenReady().then(async () => {
     tray.setState('recording');
     logger.info(`Starting recording on device [${startupResult.deviceIndex}] ${startupResult.deviceName}`);
     recorder.start(startupResult.deviceIndex);
-    playStartSound();
+    if (config.getPlaySounds()) playStartSound();
   };
 
   const stopRecording = async () => {
@@ -86,7 +86,7 @@ app.whenReady().then(async () => {
 
     try {
       const wavPath = await recorder.stop();
-      playStopSound();
+      if (config.getPlaySounds()) playStopSound();
       logger.info(`Recording saved to: ${wavPath}`);
 
       const rawText = await transcriber.transcribe(
@@ -179,6 +179,11 @@ app.whenReady().then(async () => {
   tray.on('outputModeChange', (mode: OutputMode) => {
     logger.info(`Output mode changed to: ${mode}`);
     config.setOutputMode(mode);
+    tray.buildContextMenu(config);
+  });
+  tray.on('soundsToggle', (enabled: boolean) => {
+    logger.info(`Play sounds ${enabled ? 'enabled' : 'disabled'}`);
+    config.setPlaySounds(enabled);
     tray.buildContextMenu(config);
   });
   tray.on('hotkeyModeChange', (mode: HotkeyMode) => {
