@@ -74,7 +74,9 @@ Settings live at `~/Library/Application Support/whisper-app/config.json`:
   "outputMode": "clipboard",                // "clipboard" | "autotype" | "both"
   "playSounds": true,                       // start/stop audio cues (toggle in tray menu)
   "pythonPath": "python3",
-  "tempDir": "/tmp"
+  "tempDir": "/tmp",
+  "customVocabulary": "",                   // see "Custom vocabulary" below
+  "replacementRules": []                    // see "Replacement rules" below
 }
 ```
 
@@ -101,6 +103,29 @@ Anything from `mlx-community/*` that's already cached will work. The tray menu c
 - `whisper-turbo` (default)
 - `whisper-large-v3-turbo`
 - `whisper-large-v3-mlx`
+
+### Custom vocabulary
+
+`customVocabulary` (config-file only, no tray UI yet) is passed to Whisper as its `initial_prompt` — a short piece of text used to *bias* transcription toward vocabulary the model might otherwise get wrong: proper nouns, product names, acronyms, or a punctuation/style hint.
+
+```jsonc
+"customVocabulary": "Agent AFK, mlx-whisper, uiohook-napi, Griffin Long"
+```
+
+This is a **nudge, not a guarantee** — Whisper truncates it to roughly its last ~220 tokens, so keep it to a short, curated list rather than a paragraph. For a word the model reliably gets wrong the *same way* every time, a replacement rule (below) is the more reliable fix.
+
+### Replacement rules
+
+`replacementRules` is a list of literal (non-regex), case-sensitive find/replace pairs applied to the transcript right before delivery — for words the model consistently mangles the same way, where you want a guaranteed fix rather than a probabilistic nudge.
+
+```jsonc
+"replacementRules": [
+  { "from": "whisperapp", "to": "whisper-app" },
+  { "from": "afk", "to": "AFK" }
+]
+```
+
+Rules apply in array order; a rule with an empty `"from"` is ignored.
 
 ---
 
@@ -151,6 +176,7 @@ Source layout:
 | `src/recorder.ts` | `ffmpeg` child process → WAV |
 | `src/transcriber.ts` | Spawn `transcribe.py`, return transcript |
 | `src/output.ts` | Clipboard + AppleScript keystroke |
+| `src/replace.ts` | Literal find/replace on the transcript (`replacementRules`) |
 | `src/config.ts` | `electron-store` schema + getters |
 | `src/startup.ts` | Arch / python / mlx_whisper / device / mic checks |
 | `src/logger.ts` | Structured logger |
@@ -163,7 +189,7 @@ Source layout:
 - [ ] Code signing + notarization, ship a `.dmg`
 - [ ] Streaming / partial transcription
 - [ ] Per-app output-mode overrides
-- [ ] Custom dictionary / replacement rules
+- [x] Custom dictionary / replacement rules — `customVocabulary` (Whisper `initial_prompt`) + `replacementRules`, config-file only for now
 - [ ] Settings UI (currently config file only beyond model + output mode)
 
 ---

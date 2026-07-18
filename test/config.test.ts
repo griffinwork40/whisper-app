@@ -74,6 +74,18 @@ describe('Config', () => {
     assert.equal(config.getLanguage(), 'en');
   });
 
+  test('default customVocabulary is empty string', () => {
+    const { Config } = require('../src/config');
+    const config = new Config({ cwd: tempDir });
+    assert.equal(config.getCustomVocabulary(), '');
+  });
+
+  test('default replacementRules is an empty array', () => {
+    const { Config } = require('../src/config');
+    const config = new Config({ cwd: tempDir });
+    assert.deepEqual(config.getReplacementRules(), []);
+  });
+
   test('setModel / getModel round-trip', () => {
     const { Config } = require('../src/config');
     const config = new Config({ cwd: tempDir });
@@ -86,6 +98,47 @@ describe('Config', () => {
     const config = new Config({ cwd: tempDir });
     config.setOutputMode('autotype');
     assert.equal(config.getOutputMode(), 'autotype');
+  });
+
+  test('setCustomVocabulary / getCustomVocabulary round-trip', () => {
+    const { Config } = require('../src/config');
+    const config = new Config({ cwd: tempDir });
+    config.setCustomVocabulary('mlx-whisper, uiohook-napi, esbuild');
+    assert.equal(config.getCustomVocabulary(), 'mlx-whisper, uiohook-napi, esbuild');
+  });
+
+  test('setReplacementRules / getReplacementRules round-trip', () => {
+    const { Config } = require('../src/config');
+    const config = new Config({ cwd: tempDir });
+    config.setReplacementRules([{ from: 'afk', to: 'AFK' }]);
+    assert.deepEqual(config.getReplacementRules(), [{ from: 'afk', to: 'AFK' }]);
+  });
+
+  test('setReplacementRules rejects a non-array', () => {
+    const { Config } = require('../src/config');
+    const config = new Config({ cwd: tempDir });
+    assert.throws(
+      () => config.setReplacementRules('not an array' as never),
+      TypeError,
+    );
+  });
+
+  test('setReplacementRules rejects a rule with an empty "from"', () => {
+    const { Config } = require('../src/config');
+    const config = new Config({ cwd: tempDir });
+    assert.throws(
+      () => config.setReplacementRules([{ from: '', to: 'x' }]),
+      TypeError,
+    );
+  });
+
+  test('setReplacementRules rejects a rule missing "to"', () => {
+    const { Config } = require('../src/config');
+    const config = new Config({ cwd: tempDir });
+    assert.throws(
+      () => config.setReplacementRules([{ from: 'x' } as never]),
+      TypeError,
+    );
   });
 
   test('default playSounds is true', () => {

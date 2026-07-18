@@ -29,6 +29,7 @@ Main-process-only Electron app. Single entry (`src/main.ts`) wires the modules b
 | `src/recorder.ts` | `ffmpeg` child process → `/tmp/whisper-<uuid>.wav` (16kHz mono PCM16) |
 | `src/transcriber.ts` | Spawn `scripts/transcribe.py`, return transcript |
 | `src/output.ts` | Clipboard + AppleScript keystroke (autotype) |
+| `src/replace.ts` | Literal, case-sensitive find/replace on the transcript (`replacementRules`) |
 | `src/config.ts` | `electron-store` schema (`~/Library/Application Support/whisper-app/config.json`) |
 | `src/startup.ts` | Arch / python / `mlx_whisper` / ffmpeg / device / mic preflight checks |
 | `src/logger.ts` | Structured logger — use this, not `console.*` |

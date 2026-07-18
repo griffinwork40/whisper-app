@@ -17,6 +17,7 @@ import { Transcriber } from './transcriber';
 import { HotkeyManager } from './hotkey';
 import { deliver } from './output';
 import { playStartSound, playStopSound } from './sound';
+import { applyReplacementRules } from './replace';
 import { runStartupChecks } from './startup';
 import * as logger from './logger';
 
@@ -88,20 +89,33 @@ app.whenReady().then(async () => {
       if (config.getPlaySounds()) playStopSound();
       logger.info(`Recording saved to: ${wavPath}`);
 
-      const text = await transcriber.transcribe(
+      const rawText = await transcriber.transcribe(
         wavPath,
         config.getModel(),
         config.getLanguage(),
+        config.getCustomVocabulary(),
       );
-      logger.info(`Transcription complete: "${text.substring(0, 80)}${text.length > 80 ? '…' : ''}"`);
+      logger.info(`Transcription complete: "${rawText.substring(0, 80)}${rawText.length > 80 ? '…' : ''}"`);
 
-      if (text.length === 0) {
+      if (rawText.length === 0) {
         // Silence-gate or hallucination filter dropped the result. Don't
         // clobber the clipboard or auto-type an empty string.
         logger.info('No speech detected — skipping delivery');
       } else {
-        await deliver(text, config.getOutputMode());
-        logger.info('Text delivered to output');
+        // Deterministic, guaranteed substitutions — applied after the model's
+        // own (customVocabulary-nudged) output, before it ever reaches the
+        // clipboard or focused app.
+        const text = applyReplacementRules(rawText, config.getReplacementRules());
+
+        if (text.length === 0) {
+          // A replacement rule reduced the transcript to empty (e.g. a
+          // delete-style rule with `to: ""`). Apply the same guard as the
+          // silence case: don't clobber the clipboard or auto-type "".
+          logger.info('Transcript emptied by replacement rules — skipping delivery');
+        } else {
+          await deliver(text, config.getOutputMode());
+          logger.info('Text delivered to output');
+        }
       }
 
       appState = 'idle';

@@ -57,12 +57,15 @@ function createMockProcess(): MockProcess {
   return proc;
 }
 
+let lastSpawnArgs: string[] = [];
+
 const cpMod = require('node:child_process');
 cpMod.spawn = (
   _cmd: string,
-  _args: string[],
+  args: string[],
   _opts?: object,
 ) => {
+  lastSpawnArgs = args;
   return createMockProcess();
 };
 
@@ -77,6 +80,7 @@ describe('Transcriber', () => {
     spawnScenario = 'success';
     spawnStdout = '{"text":"hello world"}';
     spawnExitCode = 0;
+    lastSpawnArgs = [];
   });
 
   test('success path: resolves with transcribed text', async () => {
@@ -119,5 +123,36 @@ describe('Transcriber', () => {
     }
     assert.ok(unlinkCalled, 'unlink should be called even on error path');
     assert.equal(unlinkPath, '/tmp/test.wav');
+  });
+
+  test('no initialPrompt arg: --initial-prompt flag is omitted entirely', async () => {
+    const t = new Transcriber('/usr/bin/python3', 'scripts/transcribe.py');
+    await t.transcribe('/tmp/test.wav', 'mlx-community/whisper-turbo', 'en');
+    assert.ok(
+      !lastSpawnArgs.includes('--initial-prompt'),
+      'flag should be omitted when initialPrompt is not provided',
+    );
+  });
+
+  test('empty-string initialPrompt: --initial-prompt flag is omitted entirely', async () => {
+    const t = new Transcriber('/usr/bin/python3', 'scripts/transcribe.py');
+    await t.transcribe('/tmp/test.wav', 'mlx-community/whisper-turbo', 'en', '   ');
+    assert.ok(
+      !lastSpawnArgs.includes('--initial-prompt'),
+      'flag should be omitted when initialPrompt is whitespace-only',
+    );
+  });
+
+  test('non-empty initialPrompt: --initial-prompt flag and value are passed to spawn', async () => {
+    const t = new Transcriber('/usr/bin/python3', 'scripts/transcribe.py');
+    await t.transcribe(
+      '/tmp/test.wav',
+      'mlx-community/whisper-turbo',
+      'en',
+      'mlx-whisper, uiohook-napi',
+    );
+    const idx = lastSpawnArgs.indexOf('--initial-prompt');
+    assert.notEqual(idx, -1, '--initial-prompt flag should be present');
+    assert.equal(lastSpawnArgs[idx + 1], 'mlx-whisper, uiohook-napi');
   });
 });

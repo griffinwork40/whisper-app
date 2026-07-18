@@ -9,6 +9,7 @@ import {
   type HotkeyMode,
   type ModelId,
   type OutputMode,
+  type ReplacementRule,
   VALID_HOTKEY_MODES,
   VALID_MODELS,
   VALID_OUTPUT_MODES,
@@ -22,6 +23,14 @@ interface ConfigSchema {
   outputMode: OutputMode;
   pythonPath: string;
   tempDir: string;
+  /** Passed to Whisper as `initial_prompt` — biases transcription toward
+   *  custom vocabulary, proper nouns, or a punctuation/style hint. Whisper
+   *  truncates this to roughly its last ~220 tokens, so keep it short. */
+  customVocabulary: string;
+  /** Literal find/replace pairs applied to the transcript before delivery,
+   *  in array order. Complements customVocabulary: that *nudges* the model,
+   *  this *guarantees* an exact substitution. */
+  replacementRules: ReplacementRule[];
   playSounds: boolean;
 }
 
@@ -33,6 +42,8 @@ const defaults: ConfigSchema = {
   outputMode: 'clipboard',
   pythonPath: 'python3',
   tempDir: '/tmp',
+  customVocabulary: '',
+  replacementRules: [],
   playSounds: true,
 };
 
@@ -113,6 +124,38 @@ export class Config {
 
   setPythonPath(pythonPath: string): void {
     this.store.set('pythonPath', pythonPath);
+  }
+
+  getCustomVocabulary(): string {
+    return this.store.get('customVocabulary');
+  }
+
+  setCustomVocabulary(text: string): void {
+    this.store.set('customVocabulary', text);
+  }
+
+  getReplacementRules(): ReplacementRule[] {
+    return this.store.get('replacementRules');
+  }
+
+  setReplacementRules(rules: ReplacementRule[]): void {
+    if (!Array.isArray(rules)) {
+      throw new TypeError('replacementRules must be an array of { from, to } pairs');
+    }
+    for (const rule of rules) {
+      if (
+        typeof rule !== 'object' ||
+        rule === null ||
+        typeof rule.from !== 'string' ||
+        typeof rule.to !== 'string' ||
+        rule.from.length === 0
+      ) {
+        throw new TypeError(
+          `Invalid replacement rule: ${JSON.stringify(rule)}. Each rule needs a non-empty string "from" and a string "to".`,
+        );
+      }
+    }
+    this.store.set('replacementRules', rules);
   }
 
   getPlaySounds(): boolean {

@@ -60,3 +60,12 @@ export interface DeviceInfo {
   index: number;
   name: string;
 }
+
+/**
+ * A literal find/replace pair applied to the final transcript before delivery.
+ * `from` must be non-empty; matches are literal (not regex) and case-sensitive.
+ */
+export interface ReplacementRule {
+  from: string;
+  to: string;
+}
