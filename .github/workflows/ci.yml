@@ -9,9 +9,10 @@ on:
 jobs:
   build-and-test:
     # macOS-only app: mlx-whisper is Apple Silicon, uiohook-napi is mac-native.
-    # macos-14 runners are arm64; sufficient to compile + run unit tests
+    # macos-latest runners are arm64 (pinned macos-14 was retired by GitHub);
+    # sufficient to compile + run unit tests
     # (the tests do not invoke ffmpeg or python at runtime).
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
 

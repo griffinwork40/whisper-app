@@ -27,7 +27,7 @@ No cloud. No telemetry. No Dock icon. Just a tray icon and a hotkey.
 |---|---|
 | Hardware | Apple Silicon (M-series) — `mlx-whisper` runs on the Neural Engine / GPU |
 | macOS | Sequoia (26.x) or later |
-| Python | `python3` on PATH with `mlx_whisper` importable |
+| Python | `python3` on PATH (or `pythonPath` in `config.json`) with `mlx_whisper` importable |
 | ffmpeg | **Required at `/opt/homebrew/bin/ffmpeg`** (the Homebrew default on Apple Silicon — this path is currently hardcoded) |
 | Models | At least one model pre-downloaded to `~/.cache/huggingface/hub/` |
 | Permissions | Microphone (always). Accessibility (only if you want auto-type). |
@@ -35,14 +35,17 @@ No cloud. No telemetry. No Dock icon. Just a tray icon and a hotkey.
 ### One-time setup
 
 ```bash
-# Python backend
-pip3 install mlx-whisper
+# Python backend (a venv: Homebrew's Python refuses global pip installs, PEP 668)
+/opt/homebrew/bin/python3.12 -m venv ~/.venvs/whisper
+~/.venvs/whisper/bin/pip install mlx-whisper
+# then set "pythonPath": "<home>/.venvs/whisper/bin/python3" in config.json
+# (absolute path; see Configuration), or launch with the venv activated
 
 # ffmpeg
 brew install ffmpeg
 
 # Pre-cache a model (whisper-turbo is the default; ~810 MB)
-python3 -c "from huggingface_hub import snapshot_download; snapshot_download('mlx-community/whisper-turbo')"
+~/.venvs/whisper/bin/python -c "from huggingface_hub import snapshot_download; snapshot_download('mlx-community/whisper-turbo')"
 ```
 
 ---
@@ -73,7 +76,7 @@ Settings live at `~/Library/Application Support/whisper-app/config.json`:
   "language": "en",                         // ISO 639-1 or "auto"
   "outputMode": "clipboard",                // "clipboard" | "autotype" | "both"
   "playSounds": true,                       // start/stop audio cues (toggle in tray menu)
-  "pythonPath": "python3",
+  "pythonPath": "python3",                 // bare name (looked up on PATH) or absolute path, e.g. a venv's bin/python3
   "tempDir": "/tmp",
   "customVocabulary": "",                   // see "Custom vocabulary" below
   "replacementRules": []                    // see "Replacement rules" below

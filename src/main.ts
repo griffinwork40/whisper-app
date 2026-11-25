@@ -34,10 +34,13 @@ app.dock?.hide();
 app.whenReady().then(async () => {
   logger.info('Whisper App starting…');
 
+  // Load config first: startup checks honour the configured pythonPath.
+  const config = new Config();
+
   // Run startup checks (arch, python, mlx_whisper, devices, mic permission)
   let startupResult;
   try {
-    startupResult = await runStartupChecks();
+    startupResult = await runStartupChecks(config.getPythonPath());
     logger.info('Startup checks passed', startupResult);
   } catch (err) {
     const setupErr = err as SetupError;
@@ -54,7 +57,6 @@ app.whenReady().then(async () => {
   }
 
   // Instantiate modules
-  const config = new Config();
   const tray = new TrayManager();
   const recorder = new AudioRecorder();
   const transcriber = new Transcriber(

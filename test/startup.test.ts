@@ -23,7 +23,7 @@ Module._load = (id: string, ...rest: unknown[]) => {
 };
 
 // Import the pure functions directly — no Electron required
-const { parseDevices, selectDevice } = require('../src/startup');
+const { parseDevices, selectDevice, resolvePythonPath } = require('../src/startup');
 
 // __dirname resolves to dist/test when bundled; climb up to project root
 const PROJECT_ROOT = path.join(__dirname, '..', '..');
@@ -86,5 +86,45 @@ describe('startup — selectDevice', () => {
     const devices = [{ index: 0, name: 'Generic Microphone' }];
     const selected = selectDevice(devices);
     assert.equal(selected.index, 0);
+  });
+});
+
+describe('startup — resolvePythonPath', () => {
+  const noWhich = async (): Promise<string> => {
+    throw new Error('which should not be called');
+  };
+
+  test('uses an absolute configured path verbatim without PATH lookup', async () => {
+    const p = await resolvePythonPath('/Users/me/.venvs/whisper/bin/python3', noWhich);
+    assert.equal(p, '/Users/me/.venvs/whisper/bin/python3');
+  });
+
+  test('resolves a bare command name via which', async () => {
+    const calls: string[] = [];
+    const p = await resolvePythonPath('python3.12', async (cmd: string) => {
+      calls.push(cmd);
+      return '/opt/homebrew/bin/python3.12\n';
+    });
+    assert.deepEqual(calls, ['python3.12']);
+    assert.equal(p, '/opt/homebrew/bin/python3.12');
+  });
+
+  test('empty config value falls back to python3', async () => {
+    const calls: string[] = [];
+    await resolvePythonPath('  ', async (cmd: string) => {
+      calls.push(cmd);
+      return '/usr/bin/python3';
+    });
+    assert.deepEqual(calls, ['python3']);
+  });
+
+  test('throws SetupError when which fails or returns nothing', async () => {
+    await assert.rejects(
+      resolvePythonPath('python3', async () => {
+        throw new Error('exit 1');
+      }),
+      { name: 'SetupError' },
+    );
+    await assert.rejects(resolvePythonPath('python3', async () => ''), { name: 'SetupError' });
   });
 });
