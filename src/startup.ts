@@ -87,11 +87,45 @@ export function selectDevice(devices: DeviceInfo[]): DeviceInfo {
 }
 
 /**
+ * Resolve the configured Python interpreter to an executable path.
+ * A value containing '/' (e.g. a venv's bin/python3) is used verbatim; a bare
+ * command name (default 'python3') is looked up on PATH via `which`.
+ * An empty/whitespace value falls back to 'python3'.
+ *
+ * @param configured - `pythonPath` from config.json
+ * @param which - PATH lookup; returns the resolved path (injectable for tests)
+ */
+export async function resolvePythonPath(
+  configured: string,
+  which: (cmd: string) => Promise<string>,
+): Promise<string> {
+  const value = configured.trim() || 'python3';
+  if (value.includes('/')) {
+    return value;
+  }
+  let resolved = '';
+  try {
+    resolved = (await which(value)).trim();
+  } catch {
+    // fall through to the error below
+  }
+  if (!resolved) {
+    throw new SetupError(
+      `${value} not found in PATH`,
+      `Python 3 ("${value}") was not found on PATH. Install it via: brew install python3, or set "pythonPath" in config.json to an absolute interpreter path.`,
+    );
+  }
+  return resolved;
+}
+
+/**
  * Run all startup checks.
  * Returns a StartupResult on success.
  * Throws SetupError with a user-facing message on failure.
+ *
+ * @param configuredPythonPath - `pythonPath` from config.json (default 'python3')
  */
-export async function runStartupChecks(): Promise<StartupResult> {
+export async function runStartupChecks(configuredPythonPath = 'python3'): Promise<StartupResult> {
   // Step 1: Verify Apple Silicon
   if (process.arch !== 'arm64') {
     throw new SetupError(
@@ -102,19 +136,10 @@ export async function runStartupChecks(): Promise<StartupResult> {
   logger.info('Architecture check: arm64 ✓');
 
   // Step 2: Resolve Python path
-  let pythonPath: string;
-  try {
-    const { stdout } = await execFileAsync('which', ['python3']);
-    pythonPath = stdout.trim();
-    if (!pythonPath) {
-      throw new Error('Empty path returned');
-    }
-  } catch {
-    throw new SetupError(
-      'python3 not found in PATH',
-      'Python 3 is required. Install it via: brew install python3',
-    );
-  }
+  const pythonPath = await resolvePythonPath(
+    configuredPythonPath,
+    async (cmd) => (await execFileAsync('which', [cmd])).stdout,
+  );
   logger.info(`Python path resolved: ${pythonPath}`);
 
   // Step 3: Verify mlx_whisper is importable
@@ -123,7 +148,7 @@ export async function runStartupChecks(): Promise<StartupResult> {
   } catch {
     throw new SetupError(
       'mlx_whisper import failed',
-      'The mlx-whisper package is not installed. Run: pip3 install mlx-whisper',
+      `The mlx-whisper package is not importable by ${pythonPath}. Install it into that interpreter (e.g. ${pythonPath} -m pip install mlx-whisper), or point "pythonPath" in config.json at a venv that has it.`,
     );
   }
   logger.info('mlx_whisper import check ✓');

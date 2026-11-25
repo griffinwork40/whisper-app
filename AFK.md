@@ -9,7 +9,7 @@ Local-only macOS menu-bar dictation app. Electron main-process-only (no renderer
 ```bash
 npm install            # one-time
 npm run build          # esbuild → dist/main.js + dist/test/*.js  (entry: esbuild.config.mjs)
-npm start              # electron dist/main.js
+npm start              # electron .  (app name from package.json → whisper-app config dir)
 npm run dev            # build + start
 npm test               # node --test 'dist/test/**/*.test.js'  (must build first)
 npx tsc --noEmit       # typecheck — run before pushing
