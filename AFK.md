@@ -15,7 +15,7 @@ npm test               # node --test 'dist/test/**/*.test.js'  (must build first
 npx tsc --noEmit       # typecheck — run before pushing
 ```
 
-CI (`.github/workflows/ci.yml`) runs on `macos-14` + Node 24: `tsc --noEmit` → `npm run build` → `npm test`. Tests do not invoke ffmpeg or python — they're pure unit tests.
+CI (`.github/workflows/ci.yml`) runs on `macos-latest` (arm64) + Node 24: `tsc --noEmit` → `npm run build` → `npm test`. Tests do not invoke ffmpeg or python — they're pure unit tests.
 
 ## Architecture
 
